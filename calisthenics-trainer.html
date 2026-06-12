@@ -5,929 +5,709 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Calisthenics Trainer</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0f0f0f;
+  color: #f0f0f0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  font-size: 16px;
+}
 
-  :root {
-    --bg: #0f0f0f;
-    --bg2: #1a1a1a;
-    --bg3: #242424;
-    --bg4: #2e2e2e;
-    --border: rgba(255,255,255,0.08);
-    --border2: rgba(255,255,255,0.15);
-    --text: #f0f0f0;
-    --text2: #a0a0a0;
-    --text3: #666;
-    --green: #22c55e;
-    --green-dim: rgba(34,197,94,0.12);
-    --green-border: rgba(34,197,94,0.3);
-    --blue: #3b82f6;
-    --blue-dim: rgba(59,130,246,0.12);
-    --amber: #f59e0b;
-    --amber-dim: rgba(245,158,11,0.12);
-    --red: #ef4444;
-    --radius: 12px;
-    --radius-sm: 8px;
-    font-size: 16px;
-  }
+/* SCREENS */
+#setup-screen, #app-screen { display: none; }
+#setup-screen.show { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1.5rem; }
+#app-screen.show { display: block; padding-bottom: 80px; }
 
-  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+/* SETUP */
+.card { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 2rem 1.5rem; width: 100%; max-width: 420px; }
+.logo { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #22c55e; margin-bottom: 1.2rem; }
+.card h1 { font-size: 26px; font-weight: 600; margin-bottom: 0.4rem; }
+.card > p { color: #a0a0a0; font-size: 14px; margin-bottom: 1.8rem; line-height: 1.6; }
+.flabel { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #888; margin-bottom: 6px; display: block; }
+.fgroup { margin-bottom: 1.1rem; }
+input[type="text"] {
+  width: 100%; background: #242424; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 11px 13px; color: #f0f0f0; font-size: 15px; outline: none;
+}
+input[type="text"]:focus { border-color: #22c55e; }
+input[type="text"]::placeholder { color: #555; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.selfbtn {
+  background: #242424; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+  padding: 11px 6px; text-align: center; cursor: pointer; color: #888; font-size: 13px;
+  transition: all 0.15s;
+}
+.selfbtn:hover { border-color: rgba(255,255,255,0.25); color: #f0f0f0; }
+.selfbtn.sel { border-color: #22c55e; background: rgba(34,197,94,0.12); color: #22c55e; }
+.selfbtn .ic { font-size: 20px; display: block; margin-bottom: 4px; }
+.dayrow { display: flex; gap: 6px; }
+.daybtn {
+  flex: 1; background: #242424; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 10px 4px; text-align: center; cursor: pointer;
+  color: #888; font-size: 14px; transition: all 0.15s;
+}
+.daybtn:hover { color: #f0f0f0; border-color: rgba(255,255,255,0.25); }
+.daybtn.sel { border-color: #22c55e; background: rgba(34,197,94,0.12); color: #22c55e; font-weight: 600; }
+.btnprimary {
+  width: 100%; background: #22c55e; color: #000; border: none; border-radius: 8px;
+  padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 1.4rem;
+}
+.btnprimary:disabled { opacity: 0.35; cursor: not-allowed; }
 
-  /* ── SCREENS ── */
-  .screen { display: none !important; min-height: 100vh; }
-  .screen.active { display: block !important; }
+/* TOPBAR */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1rem 0.7rem; border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: #0f0f0f; position: sticky; top: 0; z-index: 10;
+}
+.topbar h2 { font-size: 17px; font-weight: 600; }
+.topbar p { font-size: 12px; color: #888; margin-top: 1px; }
+.userpill {
+  background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px; padding: 6px 12px; font-size: 13px; color: #888; cursor: pointer;
+}
 
-  /* ── SETUP SCREEN ── */
-  #setup-screen.active { display: flex !important; align-items: center; justify-content: center; padding: 2rem 1rem; }
-  .setup-card { background: var(--bg2); border: 1px solid var(--border2); border-radius: 20px; padding: 2.5rem 2rem; max-width: 440px; width: 100%; }
-  .setup-logo { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); margin-bottom: 1.5rem; }
-  .setup-card h1 { font-size: 28px; font-weight: 600; margin-bottom: 0.4rem; line-height: 1.2; }
-  .setup-card p { color: var(--text2); font-size: 14px; margin-bottom: 2rem; line-height: 1.6; }
-  .form-group { margin-bottom: 1.2rem; }
-  .form-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text2); margin-bottom: 6px; display: block; }
-  .form-input { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text); font-size: 15px; outline: none; transition: border-color 0.15s; }
-  .form-input:focus { border-color: var(--green); }
-  .form-input::placeholder { color: var(--text3); }
-  .level-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-  .level-btn { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.15s; color: var(--text2); font-size: 13px; }
-  .level-btn:hover { border-color: var(--border2); color: var(--text); }
-  .level-btn.selected { border-color: var(--green); background: var(--green-dim); color: var(--green); }
-  .level-btn .level-icon { font-size: 20px; margin-bottom: 4px; display: block; }
-  .days-row { display: flex; gap: 6px; flex-wrap: wrap; }
-  .day-btn { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; cursor: pointer; font-size: 14px; color: var(--text2); transition: all 0.15s; flex: 1; text-align: center; min-width: 36px; }
-  .day-btn:hover { border-color: var(--border2); color: var(--text); }
-  .day-btn.selected { border-color: var(--green); background: var(--green-dim); color: var(--green); font-weight: 600; }
-  .btn-primary { width: 100%; background: var(--green); color: #000; border: none; border-radius: var(--radius-sm); padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 1.5rem; transition: opacity 0.15s; }
-  .btn-primary:hover { opacity: 0.88; }
-  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+/* TABS */
+.tabrow { display: flex; gap: 4px; padding: 0.9rem 1rem 0; overflow-x: auto; }
+.tabrow::-webkit-scrollbar { display: none; }
+.tabitem {
+  padding: 6px 16px; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
+  font-size: 13px; cursor: pointer; color: #888; background: transparent; white-space: nowrap;
+}
+.tabitem.active { background: #22c55e; border-color: #22c55e; color: #000; font-weight: 600; }
 
-  /* ── MAIN APP ── */
-  #app-screen { padding-bottom: 80px; }
-  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 1.25rem 0.8rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 10; }
-  .topbar-left h2 { font-size: 18px; font-weight: 600; }
-  .topbar-left p { font-size: 12px; color: var(--text2); margin-top: 1px; }
-  .topbar-right { display: flex; gap: 8px; align-items: center; }
-  .user-pill { background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 6px 12px; font-size: 13px; color: var(--text2); cursor: pointer; }
-  .icon-btn { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); font-size: 16px; }
+/* STATS */
+.statsrow { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; padding: 0.9rem 1rem; }
+.statbox { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.7rem 0.9rem; }
+.statlbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #555; margin-bottom: 4px; }
+.statval { font-size: 20px; font-weight: 600; color: #22c55e; }
 
-  /* ── TABS ── */
-  .tabs { display: flex; gap: 4px; padding: 1rem 1.25rem 0; overflow-x: auto; scrollbar-width: none; }
-  .tabs::-webkit-scrollbar { display: none; }
-  .tab { padding: 7px 16px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; cursor: pointer; white-space: nowrap; color: var(--text2); background: transparent; transition: all 0.15s; }
-  .tab:hover { border-color: var(--border2); color: var(--text); }
-  .tab.active { background: var(--green); border-color: var(--green); color: #000; font-weight: 600; }
+/* WEEK NAV */
+.weeknav { display: flex; align-items: center; gap: 8px; padding: 0.5rem 1rem 0.3rem; }
+.weeknav button {
+  background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;
+  width: 28px; height: 28px; color: #888; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.weeknav span { font-size: 13px; font-weight: 500; flex: 1; text-align: center; color: #ccc; }
 
-  /* ── STATS ROW ── */
-  .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; padding: 1rem 1.25rem; }
-  .stat-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.75rem 1rem; }
-  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text3); margin-bottom: 4px; }
-  .stat-val { font-size: 20px; font-weight: 600; color: var(--green); }
+/* PROGRESS */
+.progwrap { padding: 0.4rem 1rem 0.8rem; }
+.proglabels { display: flex; justify-content: space-between; font-size: 11px; color: #666; margin-bottom: 4px; }
+.progbar { height: 4px; background: #2a2a2a; border-radius: 2px; overflow: hidden; }
+.progfill { height: 100%; background: #22c55e; border-radius: 2px; transition: width 0.4s ease; }
 
-  /* ── WEEK VIEW ── */
-  .section-heading { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); padding: 0 1.25rem; margin-bottom: 8px; }
-  .week-days { display: flex; gap: 6px; padding: 0 1.25rem; overflow-x: auto; scrollbar-width: none; margin-bottom: 1.2rem; }
-  .week-days::-webkit-scrollbar { display: none; }
-  .wday { flex-shrink: 0; width: 68px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 8px; text-align: center; cursor: pointer; transition: all 0.15s; }
-  .wday:hover { border-color: var(--border2); }
-  .wday.active-day { border-color: var(--green); background: var(--green-dim); }
-  .wday.done { border-color: var(--green); }
-  .wday.rest-day { opacity: 0.45; cursor: default; }
-  .wday-name { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 4px; }
-  .wday-label { font-size: 12px; font-weight: 500; color: var(--text2); line-height: 1.3; }
-  .wday.active-day .wday-label { color: var(--green); }
-  .wday-check { font-size: 16px; margin-top: 4px; }
+/* DAY CHIPS */
+.seclabel { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; padding: 0 1rem; margin-bottom: 6px; }
+.dayrow2 { display: flex; gap: 6px; padding: 0 1rem; overflow-x: auto; margin-bottom: 1rem; }
+.dayrow2::-webkit-scrollbar { display: none; }
+.daychip {
+  flex-shrink: 0; width: 64px; background: #1a1a1a;
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+  padding: 8px 6px; text-align: center; cursor: pointer;
+}
+.daychip.cur { border-color: #22c55e; background: rgba(34,197,94,0.1); }
+.daychip.done { border-color: rgba(34,197,94,0.4); }
+.daychip.rest { opacity: 0.4; cursor: default; }
+.chipname { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #555; margin-bottom: 3px; }
+.chiplbl { font-size: 11px; color: #aaa; line-height: 1.3; }
+.daychip.cur .chiplbl { color: #22c55e; }
+.chipcheck { font-size: 14px; margin-top: 3px; }
 
-  /* ── EXERCISE LIST ── */
-  .ex-header { padding: 0 1.25rem; margin-bottom: 1rem; }
-  .ex-header h3 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
-  .ex-header p { font-size: 13px; color: var(--text2); }
-  .ex-list { padding: 0 1.25rem; display: flex; flex-direction: column; gap: 8px; }
-  .ex-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 12px; transition: border-color 0.15s; cursor: pointer; }
-  .ex-card:hover { border-color: var(--border2); }
-  .ex-card.completed { border-color: var(--green); background: var(--green-dim); }
-  .ex-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-  .ex-icon.push { background: rgba(59,130,246,0.15); }
-  .ex-icon.pull { background: rgba(139,92,246,0.15); }
-  .ex-icon.legs { background: rgba(245,158,11,0.15); }
-  .ex-icon.core { background: rgba(34,197,94,0.15); }
-  .ex-body { flex: 1; }
-  .ex-name { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
-  .ex-detail { font-size: 12px; color: var(--text2); }
-  .ex-sets { font-size: 14px; font-weight: 600; color: var(--green); text-align: right; white-space: nowrap; }
-  .ex-card.completed .ex-check { color: var(--green); font-size: 20px; }
+/* EXERCISES */
+.exhead { padding: 0 1rem; margin-bottom: 0.8rem; }
+.exhead h3 { font-size: 17px; font-weight: 600; margin-bottom: 3px; }
+.exhead p { font-size: 12px; color: #888; }
+.exlist { padding: 0 1rem; display: flex; flex-direction: column; gap: 8px; }
+.exrow {
+  background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+  padding: 0.85rem 1rem; display: flex; align-items: center; gap: 12px; cursor: pointer;
+  transition: border-color 0.15s;
+}
+.exrow:hover { border-color: rgba(255,255,255,0.18); }
+.exrow.done { border-color: #22c55e; background: rgba(34,197,94,0.07); }
+.exicon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.push-ic { background: rgba(59,130,246,0.2); }
+.pull-ic { background: rgba(139,92,246,0.2); }
+.legs-ic { background: rgba(245,158,11,0.2); }
+.core-ic { background: rgba(34,197,94,0.15); }
+.exname { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.exdetail { font-size: 12px; color: #777; }
+.exright { text-align: right; flex-shrink: 0; }
+.exsets { font-size: 13px; font-weight: 600; color: #22c55e; }
+.excheck { font-size: 18px; margin-top: 3px; }
 
-  /* ── TIP ── */
-  .tip-card { margin: 1rem 1.25rem; background: var(--bg2); border: 1px solid var(--green-border); border-radius: var(--radius); padding: 0.85rem 1rem; }
-  .tip-tag { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--green); margin-bottom: 4px; }
-  .tip-text { font-size: 13px; color: var(--text2); line-height: 1.55; }
+/* TIP */
+.tipbox {
+  margin: 0.9rem 1rem; background: #1a1a1a;
+  border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 0.8rem 0.9rem;
+}
+.tiptag { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #22c55e; margin-bottom: 3px; }
+.tiptext { font-size: 13px; color: #999; line-height: 1.55; }
 
-  /* ── DONE BANNER ── */
-  .done-banner { margin: 1rem 1.25rem; background: var(--green-dim); border: 1px solid var(--green-border); border-radius: var(--radius); padding: 1.2rem; text-align: center; display: none; }
-  .done-banner h4 { color: var(--green); font-size: 16px; font-weight: 600; margin-bottom: 4px; }
-  .done-banner p { font-size: 13px; color: var(--text2); }
+/* DONE BANNER */
+.donebanner {
+  margin: 0.9rem 1rem; background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 1rem; text-align: center;
+}
+.donebanner h4 { color: #22c55e; font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+.donebanner p { font-size: 13px; color: #888; }
 
-  /* ── COMPLETE WORKOUT BTN ── */
-  .complete-btn { margin: 1rem 1.25rem 0; width: calc(100% - 2.5rem); background: var(--green); color: #000; border: none; border-radius: var(--radius-sm); padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
-  .complete-btn:hover { opacity: 0.88; }
-  .complete-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+/* BUTTONS */
+.completebtn {
+  display: block; width: calc(100% - 2rem); margin: 0.9rem 1rem 0;
+  background: #22c55e; color: #000; border: none; border-radius: 8px;
+  padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer;
+}
+.completebtn:disabled { opacity: 0.3; cursor: not-allowed; }
+.undonebtn {
+  display: block; width: calc(100% - 2rem); margin: 0.9rem 1rem 0;
+  background: #1a1a1a; color: #888; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+  padding: 13px; font-size: 14px; cursor: pointer;
+}
 
-  /* ── HISTORY TAB ── */
-  .history-list { padding: 0 1.25rem; display: flex; flex-direction: column; gap: 8px; }
-  .history-item { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 12px; }
-  .history-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
-  .history-dot.missed { background: var(--border2); }
-  .history-info { flex: 1; }
-  .history-title { font-size: 14px; font-weight: 500; }
-  .history-date { font-size: 12px; color: var(--text2); margin-top: 2px; }
-  .history-badge { font-size: 11px; padding: 3px 10px; border-radius: 10px; background: var(--green-dim); color: var(--green); }
-  .empty-state { text-align: center; padding: 3rem 1.25rem; color: var(--text3); font-size: 14px; }
+/* REST VIEW */
+.restview { text-align: center; padding: 3rem 1.5rem; }
+.restemoji { font-size: 52px; margin-bottom: 1rem; }
+.restview h3 { font-size: 20px; font-weight: 600; margin-bottom: 0.5rem; }
+.restview p { font-size: 14px; color: #888; line-height: 1.7; max-width: 300px; margin: 0 auto; }
 
-  /* ── SETTINGS / USER MODAL ── */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: flex-end; justify-content: center; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 20px 20px 0 0; padding: 1.5rem 1.25rem 2rem; width: 100%; max-width: 520px; }
-  .modal-handle { width: 36px; height: 4px; background: var(--bg4); border-radius: 2px; margin: 0 auto 1.2rem; }
-  .modal h3 { font-size: 18px; font-weight: 600; margin-bottom: 1rem; }
-  .modal-section { margin-bottom: 1.5rem; }
-  .modal-row { display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 0; border-bottom: 1px solid var(--border); }
-  .modal-row:last-child { border-bottom: none; }
-  .modal-row-label { font-size: 14px; }
-  .modal-row-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
-  .modal-row-val { font-size: 14px; color: var(--green); font-weight: 500; }
-  .modal-days-row { display: flex; gap: 6px; margin-top: 0.8rem; flex-wrap: wrap; }
-  .btn-sm { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 14px; color: var(--text2); font-size: 13px; cursor: pointer; transition: all 0.15s; }
-  .btn-sm:hover { border-color: var(--border2); color: var(--text); }
-  .btn-danger { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: var(--red); width: 100%; text-align: center; padding: 12px; margin-top: 0.5rem; }
+/* HISTORY */
+.histlist { padding: 0 1rem; display: flex; flex-direction: column; gap: 8px; }
+.histitem {
+  background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+  padding: 0.85rem 1rem; display: flex; align-items: center; gap: 12px;
+}
+.histdot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
+.histtitle { font-size: 14px; font-weight: 500; }
+.histdate { font-size: 12px; color: #777; margin-top: 2px; }
+.histbadge { font-size: 11px; padding: 3px 10px; border-radius: 10px; background: rgba(34,197,94,0.12); color: #22c55e; }
+.empty { text-align: center; padding: 3rem 1rem; color: #555; font-size: 14px; }
 
-  /* ── WEEK SELECTOR ── */
-  .week-selector { display: flex; align-items: center; gap: 10px; padding: 0.8rem 1.25rem 0; margin-bottom: 0.5rem; }
-  .week-selector button { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); width: 30px; height: 30px; color: var(--text2); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .week-selector span { font-size: 14px; font-weight: 500; flex: 1; text-align: center; }
+/* BOTTOM NAV */
+.bottomnav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #0f0f0f; border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex; z-index: 20;
+}
+.navitem {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 10px 0; cursor: pointer; color: #555;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; gap: 3px;
+}
+.navitem.active { color: #22c55e; }
+.navic { font-size: 20px; }
 
-  /* ── PROGRESS BAR ── */
-  .progress-wrap { padding: 0 1.25rem; margin-bottom: 1rem; }
-  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
-  .progress-bar { height: 5px; background: var(--bg4); border-radius: 3px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width 0.4s ease; }
-
-  /* ── BOTTOM NAV ── */
-  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg); border-top: 1px solid var(--border); display: flex; z-index: 20; }
-  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 0; cursor: pointer; color: var(--text3); font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; gap: 4px; transition: color 0.15s; }
-  .nav-item.active { color: var(--green); }
-  .nav-icon { font-size: 20px; }
-
-  /* ── REST DAY SCREEN ── */
-  .rest-view { padding: 2rem 1.25rem; text-align: center; }
-  .rest-view h3 { font-size: 22px; font-weight: 600; margin-bottom: 0.5rem; }
-  .rest-view p { font-size: 14px; color: var(--text2); line-height: 1.7; max-width: 320px; margin: 0 auto; }
-  .rest-emoji { font-size: 52px; margin-bottom: 1rem; }
-
-  @media (min-width: 600px) {
-    .stats-row { grid-template-columns: repeat(3,1fr); }
-    .setup-card { padding: 3rem 2.5rem; }
-  }
+/* MODAL */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 100; align-items: flex-end; justify-content: center; }
+.overlay.open { display: flex; }
+.modal { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.12); border-radius: 20px 20px 0 0; padding: 1.4rem 1.2rem 2rem; width: 100%; max-width: 520px; }
+.mhandle { width: 36px; height: 4px; background: #333; border-radius: 2px; margin: 0 auto 1.2rem; }
+.modal h3 { font-size: 17px; font-weight: 600; margin-bottom: 1rem; }
+.mrow { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.mrow:last-child { border-bottom: none; }
+.mrowlbl { font-size: 14px; }
+.mrowsub { font-size: 12px; color: #777; margin-top: 2px; }
+.mrowval { font-size: 13px; color: #22c55e; font-weight: 500; }
+.btnsm {
+  background: #242424; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+  padding: 7px 13px; color: #aaa; font-size: 13px; cursor: pointer;
+}
+.btndanger { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #ef4444; width: 100%; padding: 12px; text-align: center; margin-top: 0.5rem; border-radius: 8px; font-size: 14px; cursor: pointer; }
+.mdayrow { display: flex; gap: 6px; margin-top: 0.7rem; flex-wrap: wrap; }
 </style>
 </head>
 <body>
 
-<!-- ══ SETUP SCREEN ══ -->
-<div id="setup-screen" class="screen active">
-  <div class="setup-card">
-    <div class="setup-logo">● Calisthenics Trainer</div>
+<!-- SETUP -->
+<div id="setup-screen">
+  <div class="card">
+    <div class="logo">● Calisthenics Trainer</div>
     <h1>Dein Training,<br>dein Fortschritt.</h1>
-    <p>Richte deinen persönlichen Trainingsplan ein. Kein Equipment nötig – nur du, dein Körper und der Boden.</p>
+    <p>Richte deinen Plan ein. Kein Equipment nötig – nur Boden, Stuhl und Tisch.</p>
 
-    <div class="form-group">
-      <label class="form-label" for="user-name">Dein Name</label>
-      <input class="form-input" id="user-name" type="text" placeholder="z.B. Max" maxlength="30">
+    <div class="fgroup">
+      <label class="flabel" for="uname">Dein Name</label>
+      <input type="text" id="uname" placeholder="z.B. Max" maxlength="30">
     </div>
 
-    <div class="form-group">
-      <label class="form-label">Erfahrungslevel</label>
-      <div class="level-grid">
-        <div class="level-btn" data-level="beginner" onclick="selectLevel(this)">
-          <span class="level-icon">🌱</span> Anfänger
-        </div>
-        <div class="level-btn" data-level="intermediate" onclick="selectLevel(this)">
-          <span class="level-icon">🔥</span> Fortge­schritten
-        </div>
-        <div class="level-btn" data-level="advanced" onclick="selectLevel(this)">
-          <span class="level-icon">⚡</span> Experte
-        </div>
+    <div class="fgroup">
+      <label class="flabel">Erfahrungslevel</label>
+      <div class="grid3">
+        <div class="selfbtn" data-v="beginner" onclick="pickLevel(this)"><span class="ic">🌱</span>Anfänger</div>
+        <div class="selfbtn" data-v="intermediate" onclick="pickLevel(this)"><span class="ic">🔥</span>Fortge&shy;schritten</div>
+        <div class="selfbtn" data-v="advanced" onclick="pickLevel(this)"><span class="ic">⚡</span>Experte</div>
       </div>
     </div>
 
-    <div class="form-group">
-      <label class="form-label">Trainingstage pro Woche</label>
-      <div class="days-row" id="days-picker">
-        <div class="day-btn" data-days="2" onclick="selectDays(this)">2</div>
-        <div class="day-btn" data-days="3" onclick="selectDays(this)">3</div>
-        <div class="day-btn" data-days="4" onclick="selectDays(this)">4</div>
-        <div class="day-btn" data-days="5" onclick="selectDays(this)">5</div>
-        <div class="day-btn" data-days="6" onclick="selectDays(this)">6</div>
+    <div class="fgroup">
+      <label class="flabel">Trainingstage pro Woche</label>
+      <div class="dayrow">
+        <div class="daybtn" data-v="2" onclick="pickDays(this)">2</div>
+        <div class="daybtn" data-v="3" onclick="pickDays(this)">3</div>
+        <div class="daybtn" data-v="4" onclick="pickDays(this)">4</div>
+        <div class="daybtn" data-v="5" onclick="pickDays(this)">5</div>
+        <div class="daybtn" data-v="6" onclick="pickDays(this)">6</div>
       </div>
     </div>
 
-    <button class="btn-primary" id="start-btn" disabled onclick="startApp()">Training starten →</button>
+    <button class="btnprimary" id="startbtn" disabled onclick="startApp()">Training starten →</button>
   </div>
 </div>
 
-<!-- ══ APP SCREEN ══ -->
-<div id="app-screen" class="screen">
-
-  <!-- Topbar -->
+<!-- APP -->
+<div id="app-screen">
   <div class="topbar">
-    <div class="topbar-left">
-      <h2 id="topbar-title">Training</h2>
-      <p id="topbar-sub">Woche 1</p>
+    <div>
+      <h2 id="tbtitle">Training</h2>
+      <p id="tbsub">Woche 1</p>
     </div>
-    <div class="topbar-right">
-      <div class="user-pill" id="user-pill" onclick="openSettings()">👤 <span id="user-pill-name"></span></div>
-    </div>
+    <div class="userpill" onclick="openModal()">👤 <span id="uspan"></span></div>
   </div>
 
-  <!-- Tab Navigation -->
-  <div class="tabs">
-    <div class="tab active" onclick="showTab('workout')">Workout</div>
-    <div class="tab" onclick="showTab('history')">Verlauf</div>
+  <div class="tabrow">
+    <div class="tabitem active" onclick="showTab('workout',this)">Workout</div>
+    <div class="tabitem" onclick="showTab('history',this)">Verlauf</div>
   </div>
 
-  <!-- ── WORKOUT TAB ── -->
   <div id="tab-workout">
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-box">
-        <div class="stat-label">Einheiten</div>
-        <div class="stat-val" id="stat-done">0</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Streak</div>
-        <div class="stat-val" id="stat-streak">0🔥</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Gesamt</div>
-        <div class="stat-val" id="stat-total">0</div>
-      </div>
+    <div class="statsrow">
+      <div class="statbox"><div class="statlbl">Einheiten</div><div class="statval" id="sdone">0</div></div>
+      <div class="statbox"><div class="statlbl">Streak</div><div class="statval" id="sstreak">0🔥</div></div>
+      <div class="statbox"><div class="statlbl">Übungen</div><div class="statval" id="stotal">0</div></div>
     </div>
 
-    <!-- Week selector -->
-    <div class="week-selector">
-      <button onclick="changeWeek(-1)">‹</button>
-      <span id="week-label">Woche 1 von 4</span>
-      <button onclick="changeWeek(1)">›</button>
+    <div class="weeknav">
+      <button onclick="chWeek(-1)">‹</button>
+      <span id="wklabel">Woche 1 von 4</span>
+      <button onclick="chWeek(1)">›</button>
     </div>
 
-    <!-- Progress -->
-    <div class="progress-wrap">
-      <div class="progress-label"><span>Wochenfortschritt</span><span id="progress-pct">0%</span></div>
-      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progwrap">
+      <div class="proglabels"><span>Wochenfortschritt</span><span id="progpct">0%</span></div>
+      <div class="progbar"><div class="progfill" id="progfill" style="width:0%"></div></div>
     </div>
 
-    <!-- Week day chips -->
-    <p class="section-heading">Diese Woche</p>
-    <div class="week-days" id="week-days"></div>
-
-    <!-- Exercise area -->
-    <div id="workout-content"></div>
+    <p class="seclabel">Diese Woche</p>
+    <div class="dayrow2" id="daychips"></div>
+    <div id="wkcontent"></div>
   </div>
 
-  <!-- ── HISTORY TAB ── -->
   <div id="tab-history" style="display:none; padding-top:1rem;">
-    <div class="history-list" id="history-list"></div>
+    <div class="histlist" id="histlist"></div>
   </div>
 
-  <!-- Bottom Nav -->
-  <div class="bottom-nav">
-    <div class="nav-item active" onclick="showTab('workout')">
-      <span class="nav-icon">🏋️</span> Workout
+  <div class="bottomnav">
+    <div class="navitem active" id="nav-workout" onclick="showTab('workout', null)">
+      <span class="navic">🏋️</span>Workout
     </div>
-    <div class="nav-item" onclick="showTab('history')">
-      <span class="nav-icon">📊</span> Verlauf
+    <div class="navitem" id="nav-history" onclick="showTab('history', null)">
+      <span class="navic">📊</span>Verlauf
     </div>
   </div>
 </div>
 
-<!-- ══ SETTINGS MODAL ══ -->
-<div class="modal-overlay" id="settings-modal" onclick="closeSettingsIfOutside(event)">
+<!-- MODAL -->
+<div class="overlay" id="modal" onclick="closeModalOut(event)">
   <div class="modal">
-    <div class="modal-handle"></div>
+    <div class="mhandle"></div>
     <h3>Einstellungen</h3>
-
-    <div class="modal-section">
-      <div class="modal-row">
-        <div>
-          <div class="modal-row-label">Name</div>
-          <div class="modal-row-sub" id="settings-name-display"></div>
-        </div>
-        <button class="btn-sm" onclick="editName()">Ändern</button>
-      </div>
-      <div class="modal-row">
-        <div>
-          <div class="modal-row-label">Level</div>
-          <div class="modal-row-sub" id="settings-level-display"></div>
-        </div>
-      </div>
-      <div class="modal-row">
-        <div>
-          <div class="modal-row-label">Trainingstage / Woche</div>
-          <div class="modal-row-sub">Wie viele Tage hast du diese Woche Zeit?</div>
-        </div>
-        <div class="modal-row-val" id="settings-days-val"></div>
-      </div>
-      <div class="modal-days-row" id="settings-days-row"></div>
+    <div class="mrow">
+      <div><div class="mrowlbl">Name</div><div class="mrowsub" id="mname"></div></div>
+      <button class="btnsm" onclick="changeName()">Ändern</button>
     </div>
-
-    <button class="btn-sm btn-danger" onclick="resetApp()">⚠ Alle Daten zurücksetzen</button>
-    <button class="btn-sm" style="width:100%;text-align:center;margin-top:8px;" onclick="closeSettings()">Schließen</button>
+    <div class="mrow">
+      <div><div class="mrowlbl">Level</div><div class="mrowsub" id="mlevel"></div></div>
+    </div>
+    <div class="mrow">
+      <div><div class="mrowlbl">Trainingstage / Woche</div><div class="mrowsub">Jederzeit änderbar</div></div>
+      <div class="mrowval" id="mdays"></div>
+    </div>
+    <div class="mdayrow" id="mdaybtns"></div>
+    <button class="btndanger" onclick="resetAll()">⚠ Alle Daten löschen</button>
+    <button class="btnsm" style="width:100%;text-align:center;margin-top:8px;" onclick="closeModal()">Schließen</button>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════
-// DATA – EXERCISES (no equipment / home items only)
-// ═══════════════════════════════════════════════
-const LEVEL_LABELS = { beginner: '🌱 Anfänger', intermediate: '🔥 Fortgeschritten', advanced: '⚡ Experte' };
-const WEEK_LABELS = { 1: 'Basis', 2: 'Aufbau', 3: 'Intensiv', 4: 'Peak' };
-const LEVEL_STAT = { beginner: 'Basis', intermediate: 'Aufbau', advanced: 'Expert' };
-
-// Template: exercise {name, detail (hint about home item if needed), sets, type}
-const PLANS = {
-  beginner: {
-    1: [
-      { label: 'Push', type: 'push', icon: '💪', tip: 'Halte oben 1 Sek. – das erhöht die Spannung.',
-        exercises: [
-          { name: 'Liegestütze', detail: 'Schulterbreit, Boden', sets: '3×8', type: 'push' },
-          { name: 'Liegestütze auf Knien', detail: 'Knie auf Boden, Rücken gerade', sets: '3×10', type: 'push' },
-          { name: 'Dips (Stuhlkante)', detail: 'Stuhl hinter dir, Hände auf Kante', sets: '3×8', type: 'push' },
-          { name: 'Plank', detail: 'Boden, Körper gerade wie ein Brett', sets: '3×20s', type: 'core' },
-          { name: 'Schulterheben liegend', detail: 'Bauchlage, Arme seitlich heben', sets: '3×12', type: 'push' },
-        ]},
-      { label: 'Pull', type: 'pull', icon: '🙌', tip: 'Schulterblätter aktiv zusammenziehen – nicht nur mit den Armen.',
-        exercises: [
-          { name: 'Tischrudern', detail: 'Unter Tisch hängen, Brust zum Tisch ziehen', sets: '3×8', type: 'pull' },
-          { name: 'Superman Hold', detail: 'Bauchlage, Arme vorne, alles heben', sets: '3×10', type: 'core' },
-          { name: 'Scapula Retraktion', detail: 'An Türrahmen lehnen, Blätter quetschen', sets: '3×12', type: 'pull' },
-          { name: 'Hollow Body Hold', detail: 'Rücken flach am Boden, Beine leicht heben', sets: '3×15s', type: 'core' },
-          { name: 'Rückenstrecken', detail: 'Bauchlage auf Boden, Oberkörper heben', sets: '3×12', type: 'pull' },
-        ]},
-      { label: 'Beine', type: 'legs', icon: '🦵', tip: 'Knie zeigen in Zehenrichtung – immer!',
-        exercises: [
-          { name: 'Kniebeugen', detail: 'Schulterbreit, tief sitzen', sets: '4×12', type: 'legs' },
-          { name: 'Ausfallschritte', detail: 'Wechselbeinig, Knie knapp über Boden', sets: '3×8 je Seite', type: 'legs' },
-          { name: 'Glute Bridge', detail: 'Rücken am Boden, Hüfte heben', sets: '3×15', type: 'legs' },
-          { name: 'Wadenheben (Stuhlkante)', detail: 'Zehenspitzen auf Kante, heben/senken', sets: '3×20', type: 'legs' },
-          { name: 'Seitstep Squat', detail: 'Weit zur Seite treten, senken', sets: '3×10 je Seite', type: 'legs' },
-        ]},
-      { label: 'Core', type: 'core', icon: '⚡', tip: 'Slow & controlled – Tempo ist dein Widerstand.',
-        exercises: [
-          { name: 'Crunches', detail: 'Rücken am Boden, kurze saubere Bewegung', sets: '3×15', type: 'core' },
-          { name: 'Beinsenken', detail: 'Beine gestreckt langsam senken', sets: '3×10', type: 'core' },
-          { name: 'Seitenplank', detail: 'Ellenbogen auf Boden, Hüfte gerade', sets: '3×20s je Seite', type: 'core' },
-          { name: 'Mountain Climbers', detail: 'In Liegestützposition, Knie wechseln', sets: '3×20', type: 'core' },
-          { name: 'Dead Bug', detail: 'Rücken flach, gegengleiche Arm+Bein senken', sets: '3×8 je Seite', type: 'core' },
-        ]},
-      { label: 'Ganzkörper', type: 'push', icon: '🌀', tip: 'Volle Kontrolle ist wichtiger als Geschwindigkeit.',
-        exercises: [
-          { name: 'Burpees (langsam)', detail: 'Komplett auf Boden, kontrolliert aufstehen', sets: '3×6', type: 'push' },
-          { name: 'Kniebeugen + Armheben', detail: 'Mit kleinen Wasserflaschen als Gewicht', sets: '3×12', type: 'legs' },
-          { name: 'Liegestütze + Reihe', detail: 'Liegestütz, dann Arm ziehen', sets: '3×6 je Seite', type: 'push' },
-          { name: 'Squat Hold', detail: 'Tiefste Position 30 Sekunden halten', sets: '3×30s', type: 'legs' },
-          { name: 'Plank Schultertipp', detail: 'Plank, abwechselnd Schulter tippen', sets: '3×10 je Seite', type: 'core' },
-        ]},
-    ],
-    2: [
-      { label: 'Push', type: 'push', icon: '💪', tip: '+2 Wdh. gegenüber letzter Woche – kleiner Schritt, große Wirkung.',
-        exercises: [
-          { name: 'Liegestütze', detail: 'Jetzt 10 Wdh. anstreben', sets: '4×10', type: 'push' },
-          { name: 'Enge Liegestütze', detail: 'Hände nah beisammen, Trizeps', sets: '3×8', type: 'push' },
-          { name: 'Dips (tief)', detail: 'Stuhlkante, tiefst möglich', sets: '3×10', type: 'push' },
-          { name: 'Plank', detail: 'Länger: 30 Sekunden', sets: '4×30s', type: 'core' },
-          { name: 'Pike Liegestütze', detail: 'V-Haltung (Hüfte hoch), Kopf nach unten', sets: '3×8', type: 'push' },
-        ]},
-      { label: 'Pull', type: 'pull', icon: '🙌', tip: 'Konzentriere dich auf die Zugphase – 2 Sek. ziehen, 3 Sek. loslassen.',
-        exercises: [
-          { name: 'Tischrudern (tiefer)', detail: 'Tisch höher, mehr Körpergewicht', sets: '4×10', type: 'pull' },
-          { name: 'Handtuch-Rudern', detail: 'Handtuch um Türgriff, Körper zurücklehnen', sets: '3×10', type: 'pull' },
-          { name: 'Superman + Hold', detail: '3 Sekunden oben halten', sets: '3×10', type: 'core' },
-          { name: 'Hollow Body Rock', detail: 'In Hollow Body vor und zurück schaukeln', sets: '3×12', type: 'core' },
-          { name: 'Rückenstrecken mit Rotation', detail: 'Oben links-rechts drehen', sets: '3×10 je Seite', type: 'pull' },
-        ]},
-      { label: 'Beine', type: 'legs', icon: '🦵', tip: 'Tempo runter auf 3 Sek. runter, 1 oben, 2 hoch.',
-        exercises: [
-          { name: 'Slow Kniebeugen', detail: '3 Sek. runter, 2 Sek. hoch', sets: '4×12', type: 'legs' },
-          { name: 'Einbein Glute Bridge', detail: 'Ein Bein gestreckt, Hüfte heben', sets: '3×12 je Seite', type: 'legs' },
-          { name: 'Sumo Squat', detail: 'Breite Stellung, Zehen auswärts', sets: '3×15', type: 'legs' },
-          { name: 'Reverse Lunges', detail: 'Schritt nach hinten, Knie knapp über Boden', sets: '3×10 je Seite', type: 'legs' },
-          { name: 'Wadenheben einbeinig', detail: 'An Wand festhalten, einbeinig', sets: '3×15 je Seite', type: 'legs' },
-        ]},
-      { label: 'Core', type: 'core', icon: '⚡', tip: 'Atme aus beim Anspannen – das aktiviert den Core tiefer.',
-        exercises: [
-          { name: 'Bicycle Crunches', detail: 'Ellenbogen zum gegenüber Knie', sets: '3×15 je Seite', type: 'core' },
-          { name: 'Reverse Crunch', detail: 'Beine heben, Hüfte leicht vom Boden', sets: '3×12', type: 'core' },
-          { name: 'Plank Variationen', detail: 'Vorne, links, rechts je 20s', sets: '3×20s je', type: 'core' },
-          { name: 'V-Ups', detail: 'Arme und Beine gleichzeitig zur Mitte', sets: '3×10', type: 'core' },
-          { name: 'Bear Crawl', detail: '4 Schritte vor, 4 zurück', sets: '3×30s', type: 'core' },
-        ]},
-      { label: 'Ganzkörper', type: 'push', icon: '🌀', tip: 'Kombinationsübungen trainieren Koordination und Kraft gleichzeitig.',
-        exercises: [
-          { name: 'Burpees', detail: 'Normal, zügig aber sauber', sets: '4×8', type: 'push' },
-          { name: 'Liegestütz + Seitenplank', detail: 'Liegestütz, dann Rotation in Seitenplank', sets: '3×6 je Seite', type: 'push' },
-          { name: 'Jump Squats', detail: 'Weich landen (Knie weich!)', sets: '3×10', type: 'legs' },
-          { name: 'Mountain Climbers', detail: 'Schneller, 30 Sekunden am Stück', sets: '3×30s', type: 'core' },
-          { name: 'Trichter-Plank', detail: 'Plank zu Downward Dog wechseln', sets: '3×10', type: 'core' },
-        ]},
-    ],
-    3: [
-      { label: 'Push', type: 'push', icon: '💪', tip: 'Ab Woche 3: Qualität schlägt Quantität – jede Wdh. bewusst.',
-        exercises: [
-          { name: 'Archer Liegestütze', detail: 'Zur Seite ausstrecken, einseitige Last', sets: '3×6 je Seite', type: 'push' },
-          { name: 'Pike Liegestütze (erhöht)', detail: 'Füße auf Stuhl, V-Haltung', sets: '4×10', type: 'push' },
-          { name: 'Dips Pause', detail: 'Stuhl, 2 Sek. in tiefster Position halten', sets: '4×8', type: 'push' },
-          { name: 'Plank Shoulder Tap', detail: 'Hüfte ruhig halten!', sets: '4×10 je Seite', type: 'core' },
-          { name: 'Liegestütz + 3 Sek. Hold oben', detail: 'Arme gestreckt kurz halten', sets: '3×8', type: 'push' },
-        ]},
-      { label: 'Pull', type: 'pull', icon: '🙌', tip: 'Handtuch-Rudern intensiver machen: Füße höher legen.',
-        exercises: [
-          { name: 'Tischrudern (Füße erhöht)', detail: 'Füße auf zweitem Stuhl', sets: '4×10', type: 'pull' },
-          { name: 'Einarm-Handtuch-Rudern', detail: 'Ein Arm, andere Hand leicht am Türgriff', sets: '3×8 je Seite', type: 'pull' },
-          { name: 'Superman Sequence', detail: 'Heben, 5s halten, Arme seitlich, 5s halten', sets: '3×6', type: 'core' },
-          { name: 'L-Sitz (Stuhl)', detail: 'Hände auf Stuhlarmlehnen, Beine heben', sets: '3×8s', type: 'core' },
-          { name: 'Reverse Snow Angels', detail: 'Bauchlage, Arme in Bogen von oben nach unten', sets: '3×12', type: 'pull' },
-        ]},
-      { label: 'Beine', type: 'legs', icon: '🦵', tip: 'Einbeinige Übungen zeigen Schwächen im Gleichgewicht – bleib dran.',
-        exercises: [
-          { name: 'Pistol Squat (Stuhl)', detail: 'An Stuhlrücken festhalten, einbeinig', sets: '4×6 je Seite', type: 'legs' },
-          { name: 'Bulgarian Split Squat', detail: 'Hinteres Bein auf Stuhl, tief sinken', sets: '3×8 je Seite', type: 'legs' },
-          { name: 'Nordic Curl (Sofa)', detail: 'Fersen unter Sofakante, nach vorne fallen', sets: '3×4', type: 'legs' },
-          { name: 'Jump Lunge', detail: 'Explosiv wechseln, weich landen', sets: '3×8 je Seite', type: 'legs' },
-          { name: 'Squat Pulse', detail: '30 Sek. kleine Bewegungen tief in der Squat', sets: '3×30s', type: 'legs' },
-        ]},
-      { label: 'Core', type: 'core', icon: '⚡', tip: 'Dragon Flag beginnt mit engem Tuck – bitte kein Hohlkreuz!',
-        exercises: [
-          { name: 'Hanging Knee Raise (Türrahmen)', detail: 'An Türrahmen hängen, Knie heben', sets: '3×10', type: 'core' },
-          { name: 'Dragon Flag (Tuck)', detail: 'Auf Boden, Hände am Boden über Kopf greifen', sets: '3×5', type: 'core' },
-          { name: 'Hollow Body Hold', detail: '25 Sekunden, unterer Rücken am Boden', sets: '4×25s', type: 'core' },
-          { name: 'Ab Wheel (Flasche)', detail: 'Wasserflasche als Rolle, kniend', sets: '3×8', type: 'core' },
-          { name: 'Russian Twists', detail: 'Mit Wasserflasche als Gewicht', sets: '3×15 je Seite', type: 'core' },
-        ]},
-      { label: 'Ganzkörper', type: 'push', icon: '🌀', tip: 'Flow-Training: Übergänge between Moves trainieren = echte Körperkontrolle.',
-        exercises: [
-          { name: 'Burpee + Liegestütz', detail: 'Vollständiger Burpee mit Liegestütz unten', sets: '4×8', type: 'push' },
-          { name: 'Squat + Dips Kombi', detail: '5 Squats, dann 5 Dips, 4 Runden', sets: '4 Runden', type: 'legs' },
-          { name: 'Tischrudern + Liegestütz', detail: '6 Rudern, sofort 6 Liegestütz', sets: '4 Runden', type: 'pull' },
-          { name: 'Plank Kombi', detail: 'Vorne 30s → Seite 20s → Seite 20s', sets: '3 Runden', type: 'core' },
-          { name: 'Cool-Down Mobility', detail: 'Schultern, Hüfte, Wirbelsäule dehnen', sets: '5 Min.', type: 'core' },
-        ]},
-    ],
-    4: [
-      { label: 'Peak Push', type: 'push', icon: '💪', tip: 'Das ist deine Testeinheit – notiere Maximalwdh. für den nächsten Zyklus.',
-        exercises: [
-          { name: 'Liegestütz Max', detail: 'Wie viele saubere Wdh. in einem Satz?', sets: '3 × max', type: 'push' },
-          { name: 'Archer Liegestütze', detail: 'Beste Form, kein Cheating', sets: '4×8 je Seite', type: 'push' },
-          { name: 'Pike Liegestütz (Stuhl)', detail: 'Stuhl, volle ROM', sets: '5×10', type: 'push' },
-          { name: 'Weighted Dips', detail: 'Rucksack mit Büchern = Zusatzlast', sets: '4×8', type: 'push' },
-          { name: 'Plank Komplex', detail: 'Vorne 45s, Seite 30s, Seite 30s', sets: '3 Runden', type: 'core' },
-        ]},
-      { label: 'Peak Pull', type: 'pull', icon: '🙌', tip: 'Maximales Tischrudern heute – schiebe Grenzen sauber aus.',
-        exercises: [
-          { name: 'Tischrudern Max', detail: 'Max Wdh. in einem Satz, notieren', sets: '3 × max', type: 'pull' },
-          { name: 'Einarm Rudern (Tisch)', detail: 'So wenig Hilfe wie nötig', sets: '4×6 je Seite', type: 'pull' },
-          { name: 'Handtuch-Rudern (Füße hoch)', detail: 'Maximale Belastung durch Fußhöhe', sets: '4×10', type: 'pull' },
-          { name: 'L-Sitz (Stuhl)', detail: 'Haltezeit maximieren', sets: '4 × max', type: 'core' },
-          { name: 'Hanging Knee Raise', detail: 'An Türrahmen, Beine strecken versuchen', sets: '4×10', type: 'core' },
-        ]},
-      { label: 'Peak Beine', type: 'legs', icon: '🦵', tip: 'Pistol Squat frei stehend – auch wenn er wackelt. Wackeln = lernen.',
-        exercises: [
-          { name: 'Pistol Squat frei', detail: 'An Wand nur wenn nötig', sets: '5×5 je Seite', type: 'legs' },
-          { name: 'Bulgarian Split Squat', detail: 'Tiefer als letzte Woche', sets: '4×10 je Seite', type: 'legs' },
-          { name: 'Nordic Curl', detail: '4 Sek. eccentrisch, so tief wie möglich', sets: '4×5', type: 'legs' },
-          { name: 'Jump Squat Max', detail: 'Max Höhe, weich landen', sets: '4×10', type: 'legs' },
-          { name: 'Wadenheben einbeinig', detail: 'Ohne Festhalten versuchen', sets: '4×20 je Seite', type: 'legs' },
-        ]},
-      { label: 'Skill & Flow', type: 'core', icon: '🌀', tip: 'Heute kein Plan – entwickle deinen eigenen Stil und genieß es.',
-        exercises: [
-          { name: 'Freie Kombination', detail: 'Lieblings-Übungen kombinieren', sets: '20 Min. frei', type: 'push' },
-          { name: 'Dragon Flag', detail: 'Tuck oder gestreckt – best effort', sets: '4×5', type: 'core' },
-          { name: 'L-Sitz zu V-Sitz', detail: 'Transition üben', sets: '3×5 Versuche', type: 'core' },
-          { name: 'Handstand (Wand)', detail: 'Wand-Handstand, so lange wie möglich', sets: '5 × max', type: 'push' },
-          { name: 'Stretching Routine', detail: 'Schultern, Hüfte, Hamstrings, Wirbelsäule', sets: '10 Min.', type: 'core' },
-        ]},
-    ],
-  }
-};
-// Intermediate / Advanced: same structure, harder progressions
-// For brevity, intermediate = beginner exercises +1 set and "harder" note
-function buildIntermediatePlan() {
-  const plan = {};
-  for (let w = 1; w <= 4; w++) {
-    plan[w] = PLANS.beginner[w].map(day => ({
-      ...day,
-      tip: day.tip + ' (Intermediate: +1 Satz, engere Form)',
-      exercises: day.exercises.map(ex => ({
-        ...ex,
-        sets: ex.sets.replace(/(\d+)×(\d+)/, (m, s, r) => `${parseInt(s)+1}×${parseInt(r)+2}`),
-        detail: ex.detail + ' – enger / langsamer',
-      }))
-    }));
-  }
-  return plan;
-}
-function buildAdvancedPlan() {
-  const plan = {};
-  for (let w = 1; w <= 4; w++) {
-    plan[w] = PLANS.beginner[w].map(day => ({
-      ...day,
-      tip: day.tip + ' (Expert: explosiver, tempo variation)',
-      exercises: day.exercises.map(ex => ({
-        ...ex,
-        sets: ex.sets.replace(/(\d+)×(\d+)/, (m, s, r) => `${parseInt(s)+2}×${parseInt(r)+4}`),
-        detail: ex.detail + ' – explosiv / gewichtet',
-      }))
-    }));
-  }
-  return plan;
-}
-PLANS.intermediate = buildIntermediatePlan();
-PLANS.advanced = buildAdvancedPlan();
-
-// ═══════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════
-let STATE = {
-  user: null, // { name, level, trainingDays }
-  currentWeek: 1,
-  currentDayIndex: 0,
-  completedWorkouts: [], // [{ date, week, dayIndex, label }]
-  completedExercises: {}, // key: "w-d-eName" → true
+// ── DATA ──────────────────────────────────────
+var EXERCISES = {
+  push: [
+    ["Liegestütze","Schulterbreit, Boden, volle Bewegung","3×10","push"],
+    ["Enge Liegestütze","Hände nah, Trizepsfokus","3×8","push"],
+    ["Pike Liegestütze","V-Haltung, Hüfte hoch, Kopf runter","3×8","push"],
+    ["Dips (Stuhlkante)","Stuhl hinter dir, Hände auf Kante","3×10","push"],
+    ["Liegestütz auf Knien","Rücken gerade, gute Basis","3×12","push"]
+  ],
+  pull: [
+    ["Tischrudern","Unter Tisch hängen, Brust nach oben ziehen","3×10","pull"],
+    ["Handtuch-Rudern","Handtuch um Türgriff, Körper zurücklehnen","3×10","pull"],
+    ["Superman Hold","Bauchlage, Arme & Beine heben","3×12","pull"],
+    ["Rückenstrecken","Bauchlage, Oberkörper langsam heben","3×12","pull"],
+    ["Einarm-Rudern (Tisch)","Eine Seite, andere Hand leicht stützen","3×8","pull"]
+  ],
+  legs: [
+    ["Kniebeugen","Schulterbreit, tief, Knie über Zehen","4×12","legs"],
+    ["Ausfallschritte","Wechselbeinig, Knie knapp über Boden","3×10","legs"],
+    ["Glute Bridge","Rücken am Boden, Hüfte heben & halten","3×15","legs"],
+    ["Wadenheben (Stuhlkante)","Zehenspitzen auf Kante, heben/senken","3×20","legs"],
+    ["Bulgarian Split Squat","Hinteres Bein auf Stuhl","3×8","legs"]
+  ],
+  core: [
+    ["Plank","Boden, Körper gerade wie ein Brett","3×30s","core"],
+    ["Hollow Body Hold","Unterer Rücken am Boden, Beine leicht heben","3×20s","core"],
+    ["Crunches","Kurze saubere Bewegung, kein Schwung","3×15","core"],
+    ["Mountain Climbers","Liegestützposition, Knie wechseln","3×20","core"],
+    ["Seitenplank","Ellenbogen auf Boden, Hüfte gerade","3×20s","core"]
+  ]
 };
 
-function saveState() {
-  try { localStorage.setItem('cali_state', JSON.stringify(STATE)); } catch(e) {}
+var WEEK_PLANS = [
+  // Woche 1
+  [
+    {label:"Push",type:"push",tip:"Halte oben 1 Sek. – das erhöht die Spannung.",ex:["push0","push1","push3","core0","core1"]},
+    {label:"Pull",type:"pull",tip:"Schulterblätter aktiv zusammenziehen, nicht nur mit Armen ziehen.",ex:["pull0","pull1","pull2","core1","pull3"]},
+    {label:"Beine",type:"legs",tip:"Knie zeigen immer in Zehenrichtung – immer!",ex:["legs0","legs1","legs2","legs3","core4"]},
+    {label:"Core",type:"core",tip:"Atme aus beim Anspannen – das aktiviert den Core tiefer.",ex:["core0","core1","core2","core3","core4"]},
+    {label:"Ganzkörper",type:"push",tip:"Volle Kontrolle ist wichtiger als Geschwindigkeit.",ex:["push0","legs0","pull0","core0","core3"]}
+  ],
+  // Woche 2
+  [
+    {label:"Push +",type:"push",tip:"+2 Wdh. gegenüber letzter Woche – kleiner Schritt, große Wirkung.",ex:["push0","push1","push2","push3","core0"]},
+    {label:"Pull +",type:"pull",tip:"2 Sek. ziehen, 3 Sek. loslassen – Tempo ist dein Widerstand.",ex:["pull0","pull1","pull4","pull2","core1"]},
+    {label:"Beine +",type:"legs",tip:"3 Sek. runter, 1 oben, 2 hoch – Tempo als Widerstand.",ex:["legs0","legs1","legs2","legs4","core4"]},
+    {label:"Core +",type:"core",tip:"V-Ups: Hüfte als Drehpunkt, Arme und Beine gleichzeitig.",ex:["core0","core1","core2","core3","core4"]},
+    {label:"Kombi",type:"push",tip:"Kombinationsübungen trainieren Koordination und Kraft gleichzeitig.",ex:["push0","pull0","legs0","core3","core0"]}
+  ],
+  // Woche 3
+  [
+    {label:"Push Int.",type:"push",tip:"Ab Woche 3: Qualität schlägt Quantität – jede Wiederholung bewusst.",ex:["push0","push2","push3","core0","core3"]},
+    {label:"Pull Int.",type:"pull",tip:"Einarm-Rudern: so wenig Hilfe wie nötig – baue die Seite auf.",ex:["pull0","pull4","pull1","pull2","core1"]},
+    {label:"Beine Int.",type:"legs",tip:"Einbeinige Übungen zeigen Schwächen im Gleichgewicht – bleib dran.",ex:["legs0","legs1","legs4","legs2","core4"]},
+    {label:"Core Int.",type:"core",tip:"Hollow Body: unterer Rücken MUSS den Boden berühren.",ex:["core1","core0","core2","core3","core4"]},
+    {label:"Ganzkörper",type:"push",tip:"Flow-Training: Übergänge zwischen Moves trainieren echte Körperkontrolle.",ex:["push0","pull0","legs0","core3","core0"]}
+  ],
+  // Woche 4
+  [
+    {label:"Peak Push",type:"push",tip:"Notiere deine Maximalwdh. – Ausgangspunkt für den nächsten Zyklus!",ex:["push0","push1","push2","push3","core0"]},
+    {label:"Peak Pull",type:"pull",tip:"Maximales Tischrudern heute – schiebe Grenzen sauber aus.",ex:["pull0","pull4","pull1","pull2","core1"]},
+    {label:"Peak Beine",type:"legs",tip:"Bulgarian Split Squat: tiefer als letzte Woche – Schritt für Schritt.",ex:["legs0","legs4","legs1","legs2","core4"]},
+    {label:"Skill",type:"core",tip:"Heute kein fester Plan – entwickle deinen eigenen Rhythmus.",ex:["core0","core1","core2","core3","core4"]},
+    {label:"Abschluss",type:"push",tip:"Letzte Einheit: Lieblings-Übungen + 10 Min. Stretching danach.",ex:["push0","pull0","legs0","core3","core0"]}
+  ]
+];
+
+var LEVEL_SETS = {
+  beginner: [3,3],
+  intermediate: [4,2],
+  advanced: [5,2]
+};
+
+var PATTERNS = {
+  2: [1,0,0,1,0,0,0],
+  3: [1,0,1,0,1,0,0],
+  4: [1,0,1,1,0,1,0],
+  5: [1,1,0,1,1,0,1],
+  6: [1,1,1,0,1,1,1]
+};
+
+function getEx(key) {
+  var type = key.replace(/\d+/,'');
+  var idx = parseInt(key.replace(/\D+/,''));
+  return EXERCISES[type][idx];
 }
-function loadState() {
+
+function getExWithLevel(key, level) {
+  var ex = getEx(key);
+  var base = ex[2];
+  if (level === 'intermediate') {
+    base = base.replace(/(\d+)×(\d+)/g, function(m,s,r){ return (parseInt(s)+1)+'×'+(parseInt(r)+2); });
+  } else if (level === 'advanced') {
+    base = base.replace(/(\d+)×(\d+)/g, function(m,s,r){ return (parseInt(s)+2)+'×'+(parseInt(r)+4); });
+  }
+  return [ex[0], ex[1], base, ex[3]];
+}
+
+// ── STATE ─────────────────────────────────────
+var S = {
+  user: null,
+  week: 1,
+  dayIdx: 0,
+  done: [],       // [{date,week,day,label}]
+  exdone: {}      // "w-d-name": true
+};
+
+function save() {
+  try { localStorage.setItem('cali2', JSON.stringify(S)); } catch(e) {}
+}
+function load() {
   try {
-    const raw = localStorage.getItem('cali_state');
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === 'object') STATE = parsed;
-    }
-  } catch(e) {
-    console.warn('localStorage nicht verfügbar:', e);
-  }
+    var r = localStorage.getItem('cali2');
+    if (r) { var p = JSON.parse(r); if (p && p.user) S = p; }
+  } catch(e) {}
 }
 
-// ═══════════════════════════════════════════
-// SETUP
-// ═══════════════════════════════════════════
-let setupLevel = null;
-let setupDays = null;
+// ── SETUP ─────────────────────────────────────
+var _level = null, _days = null;
 
-function selectLevel(el) {
-  document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
-  setupLevel = el.dataset.level;
-  checkSetupReady();
+function pickLevel(el) {
+  document.querySelectorAll('.selfbtn').forEach(function(b){ b.classList.remove('sel'); });
+  el.classList.add('sel');
+  _level = el.dataset.v;
+  checkReady();
 }
-function selectDays(el) {
-  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
-  setupDays = parseInt(el.dataset.days);
-  checkSetupReady();
+function pickDays(el) {
+  document.querySelectorAll('.daybtn').forEach(function(b){ b.classList.remove('sel'); });
+  el.classList.add('sel');
+  _days = parseInt(el.dataset.v);
+  checkReady();
 }
-function checkSetupReady() {
-  const name = document.getElementById('user-name').value.trim();
-  document.getElementById('start-btn').disabled = !(name && setupLevel && setupDays);
+function checkReady() {
+  var name = document.getElementById('uname').value.trim();
+  document.getElementById('startbtn').disabled = !(name && _level && _days);
 }
-document.getElementById('user-name').addEventListener('input', checkSetupReady);
+document.getElementById('uname').addEventListener('input', checkReady);
 
 function startApp() {
-  const name = document.getElementById('user-name').value.trim();
-  STATE.user = { name, level: setupLevel, trainingDays: setupDays };
-  STATE.currentWeek = 1;
-  STATE.currentDayIndex = 0;
-  STATE.completedWorkouts = [];
-  STATE.completedExercises = {};
-  saveState();
-  showApp();
+  var name = document.getElementById('uname').value.trim();
+  S.user = { name: name, level: _level, days: _days };
+  S.week = 1; S.dayIdx = 0; S.done = []; S.exdone = {};
+  save();
+  launchApp();
 }
 
-// ═══════════════════════════════════════════
-// APP INIT
-// ═══════════════════════════════════════════
-function showApp() {
-  document.getElementById('setup-screen').classList.remove('active');
-  document.getElementById('app-screen').classList.add('active');
-  renderApp();
+// ── APP ───────────────────────────────────────
+function launchApp() {
+  document.getElementById('setup-screen').classList.remove('show');
+  document.getElementById('app-screen').classList.add('show');
+  renderAll();
 }
 
-function renderApp() {
-  const u = STATE.user;
-  document.getElementById('user-pill-name').textContent = u.name;
-  document.getElementById('topbar-title').textContent = 'Hallo, ' + u.name + ' 👋';
-  document.getElementById('topbar-sub').textContent = 'Woche ' + STATE.currentWeek + ' · ' + WEEK_LABELS[STATE.currentWeek];
+function renderAll() {
+  var u = S.user;
+  document.getElementById('uspan').textContent = u.name;
+  document.getElementById('tbtitle').textContent = 'Hallo, ' + u.name + ' 👋';
+  document.getElementById('tbsub').textContent = 'Woche ' + S.week;
   renderStats();
-  renderWeekDays();
+  renderDayChips();
   renderWorkout();
 }
 
 function renderStats() {
-  const done = STATE.completedWorkouts.length;
-  document.getElementById('stat-done').textContent = done;
-  document.getElementById('stat-total').textContent = done * 5; // rough exercise count
-  // Streak: consecutive days
-  let streak = 0;
-  const today = dateStr(new Date());
-  const dates = [...new Set(STATE.completedWorkouts.map(w => w.date))].sort().reverse();
-  let check = today;
-  for (const d of dates) {
-    if (d === check) { streak++; const dt = new Date(check); dt.setDate(dt.getDate()-1); check = dateStr(dt); }
+  document.getElementById('sdone').textContent = S.done.length;
+  document.getElementById('stotal').textContent = S.done.length * 5;
+  var streak = 0;
+  var today = dstr(new Date());
+  var dates = S.done.map(function(w){ return w.date; }).filter(function(v,i,a){ return a.indexOf(v)===i; }).sort().reverse();
+  var chk = today;
+  for (var i = 0; i < dates.length; i++) {
+    if (dates[i] === chk) { streak++; var d = new Date(chk); d.setDate(d.getDate()-1); chk = dstr(d); }
     else break;
   }
-  document.getElementById('stat-streak').textContent = streak + '🔥';
+  document.getElementById('sstreak').textContent = streak + '🔥';
 }
 
-function renderWeekDays() {
-  const days = buildWeekDays(STATE.currentWeek, STATE.user.trainingDays);
-  const container = document.getElementById('week-days');
-  container.innerHTML = days.map((d, i) => {
-    const isDone = isWorkoutDone(STATE.currentWeek, i);
-    const isActive = i === STATE.currentDayIndex && !d.rest;
-    return `<div class="wday ${isActive?'active-day':''} ${isDone&&!d.rest?'done':''} ${d.rest?'rest-day':''}" 
-      onclick="${d.rest ? '' : 'setDay('+i+')'}">
-      <div class="wday-name">Tag ${i+1}</div>
-      <div class="wday-label">${d.rest ? 'Pause' : d.label}</div>
-      <div class="wday-check">${isDone && !d.rest ? '✅' : d.rest ? '😴' : '○'}</div>
-    </div>`;
-  }).join('');
-
-  // Progress
-  const trainDays = days.filter(d => !d.rest);
-  const doneDays = trainDays.filter((d,i) => isWorkoutDone(STATE.currentWeek, days.indexOf(d)));
-  // recalculate
-  let doneCount = 0;
-  days.forEach((d, i) => { if (!d.rest && isWorkoutDone(STATE.currentWeek, i)) doneCount++; });
-  const pct = trainDays.length ? Math.round(doneCount / trainDays.length * 100) : 0;
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('progress-pct').textContent = pct + '%';
-  document.getElementById('week-label').textContent = 'Woche ' + STATE.currentWeek + ' von 4';
-}
-
-function buildWeekDays(week, trainingDays) {
-  const level = STATE.user.level;
-  const dayTemplates = PLANS[level][week];
-  // Distribute training days across 7 days
-  const result = [];
-  const patterns = {
-    2: [1,0,0,1,0,0,0],
-    3: [1,0,1,0,1,0,0],
-    4: [1,0,1,1,0,1,0],
-    5: [1,1,0,1,1,0,1],
-    6: [1,1,1,0,1,1,1],
-  };
-  const pattern = patterns[trainingDays] || patterns[3];
-  let templateIdx = 0;
-  for (let i = 0; i < 7; i++) {
-    if (pattern[i] && templateIdx < dayTemplates.length) {
-      result.push({ ...dayTemplates[templateIdx], rest: false, dayIdx: i });
-      templateIdx++;
+function buildDays() {
+  var plan = WEEK_PLANS[S.week - 1];
+  var pat = PATTERNS[S.user.days] || PATTERNS[3];
+  var result = [];
+  var ti = 0;
+  for (var i = 0; i < 7; i++) {
+    if (pat[i] && ti < plan.length) {
+      result.push({ rest: false, label: plan[ti].label, type: plan[ti].type, tip: plan[ti].tip, exkeys: plan[ti].ex, di: i });
+      ti++;
     } else {
-      result.push({ rest: true, label: 'Pause', dayIdx: i });
+      result.push({ rest: true, di: i });
     }
   }
   return result;
 }
 
-function isWorkoutDone(week, dayIdx) {
-  return STATE.completedWorkouts.some(w => w.week === week && w.dayIndex === dayIdx);
+function isDone(week, dayIdx) {
+  return S.done.some(function(w){ return w.week === week && w.day === dayIdx; });
 }
 
-function setDay(i) {
-  const days = buildWeekDays(STATE.currentWeek, STATE.user.trainingDays);
-  if (days[i] && !days[i].rest) {
-    STATE.currentDayIndex = i;
-    saveState();
-    renderWeekDays();
-    renderWorkout();
+function renderDayChips() {
+  var days = buildDays();
+  var html = '';
+  for (var i = 0; i < days.length; i++) {
+    var d = days[i];
+    var done = !d.rest && isDone(S.week, i);
+    var cur = i === S.dayIdx && !d.rest;
+    var cls = 'daychip' + (cur?' cur':'') + (done&&!cur?' done':'') + (d.rest?' rest':'');
+    var onclick = d.rest ? '' : 'onclick="pickDay('+i+')"';
+    var dayNames = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+    html += '<div class="'+cls+'" '+onclick+'>';
+    html += '<div class="chipname">'+dayNames[i]+'</div>';
+    html += '<div class="chiplbl">'+(d.rest?'Pause':d.label)+'</div>';
+    html += '<div class="chipcheck">'+(done&&!d.rest?'✅':d.rest?'😴':'○')+'</div>';
+    html += '</div>';
   }
+  document.getElementById('daychips').innerHTML = html;
+
+  // Progress
+  var days2 = buildDays();
+  var trainDays = days2.filter(function(d){ return !d.rest; });
+  var doneCt = 0;
+  for (var i = 0; i < days2.length; i++) {
+    if (!days2[i].rest && isDone(S.week, i)) doneCt++;
+  }
+  var pct = trainDays.length ? Math.round(doneCt / trainDays.length * 100) : 0;
+  document.getElementById('progfill').style.width = pct + '%';
+  document.getElementById('progpct').textContent = pct + '%';
+  document.getElementById('wklabel').textContent = 'Woche ' + S.week + ' von 4';
 }
 
-function changeWeek(delta) {
-  const next = STATE.currentWeek + delta;
-  if (next < 1 || next > 4) return;
-  STATE.currentWeek = next;
-  // Pick first training day of new week
-  const days = buildWeekDays(next, STATE.user.trainingDays);
-  const first = days.findIndex(d => !d.rest);
-  STATE.currentDayIndex = first >= 0 ? first : 0;
-  saveState();
-  renderApp();
+function pickDay(i) {
+  var days = buildDays();
+  if (days[i] && !days[i].rest) { S.dayIdx = i; save(); renderDayChips(); renderWorkout(); }
+}
+
+function chWeek(d) {
+  var nw = S.week + d;
+  if (nw < 1 || nw > 4) return;
+  S.week = nw;
+  var days = buildDays();
+  var first = -1;
+  for (var i = 0; i < days.length; i++) { if (!days[i].rest) { first = i; break; } }
+  S.dayIdx = first >= 0 ? first : 0;
+  save();
+  renderAll();
+}
+
+var EMOJIS = { push:'💪', pull:'🙌', legs:'🦵', core:'⚡' };
+
+function exKey(name) { return S.week + '-' + S.dayIdx + '-' + name; }
+function isExDone(name) { return !!S.exdone[exKey(name)]; }
+
+function toggleEx(name) {
+  var k = exKey(name);
+  if (S.exdone[k]) delete S.exdone[k]; else S.exdone[k] = true;
+  save();
+  renderWorkout();
 }
 
 function renderWorkout() {
-  const days = buildWeekDays(STATE.currentWeek, STATE.user.trainingDays);
-  const day = days[STATE.currentDayIndex];
-  const content = document.getElementById('workout-content');
+  var days = buildDays();
+  var day = days[S.dayIdx];
+  var el = document.getElementById('wkcontent');
 
   if (!day || day.rest) {
-    content.innerHTML = `<div class="rest-view"><div class="rest-emoji">😴</div><h3>Ruhetag</h3><p>Heute ist aktive Erholung angesagt. Spazieren gehen, dehnen oder einfach entspannen. Der Körper wächst in der Pause.</p></div>`;
+    el.innerHTML = '<div class="restview"><div class="restemoji">😴</div><h3>Ruhetag</h3><p>Aktive Erholung: Spazieren, Dehnen oder einfach ausruhen. Der Körper wächst in der Pause.</p></div>';
     return;
   }
 
-  const done = isWorkoutDone(STATE.currentWeek, STATE.currentDayIndex);
-  const exDone = day.exercises.filter(ex => isExDone(ex.name)).length;
-  const allExDone = exDone === day.exercises.length;
+  var done = isDone(S.week, S.dayIdx);
+  var exList = day.exkeys.map(function(k){ return getExWithLevel(k, S.user.level); });
+  var doneCt = exList.filter(function(ex){ return isExDone(ex[0]); }).length;
+  var allDone = doneCt === exList.length;
 
-  content.innerHTML = `
-    <div class="ex-header">
-      <h3>${day.label} – Tag ${STATE.currentDayIndex + 1}</h3>
-      <p style="color:var(--text2);font-size:13px;">${exDone} / ${day.exercises.length} Übungen erledigt</p>
-    </div>
-    <div class="ex-list" id="ex-list">
-      ${day.exercises.map(ex => exCard(ex, day)).join('')}
-    </div>
-    <div class="tip-card">
-      <div class="tip-tag">💡 Trainer-Tipp</div>
-      <div class="tip-text">${day.tip}</div>
-    </div>
-    <div class="done-banner" id="done-banner" style="${done ? 'display:block' : 'display:none'}">
-      <h4>Einheit abgeschlossen! 🎉</h4>
-      <p>Super Arbeit. Erhol dich gut für die nächste Einheit.</p>
-    </div>
-    ${!done ? `<button class="complete-btn" id="complete-btn" ${allExDone ? '' : 'disabled'} onclick="completeWorkout()">
-      Einheit abschließen ✓
-    </button>` : `<button class="complete-btn" style="background:var(--bg3);color:var(--text2);margin-top:1rem;" onclick="uncompleteWorkout()">
-      Einheit als offen markieren
-    </button>`}
-    <div style="height:1.5rem"></div>
-  `;
-}
-
-function exCard(ex, day) {
-  const done = isExDone(ex.name);
-  return `<div class="ex-card ${done ? 'completed' : ''}" onclick="toggleEx('${escKey(ex.name)}')">
-    <div class="ex-icon ${ex.type}">${typeEmoji(ex.type)}</div>
-    <div class="ex-body">
-      <div class="ex-name">${ex.name}</div>
-      <div class="ex-detail">${ex.detail}</div>
-    </div>
-    <div style="text-align:right">
-      <div class="ex-sets">${ex.sets}</div>
-      <div style="font-size:20px;margin-top:4px">${done ? '✅' : '○'}</div>
-    </div>
-  </div>`;
-}
-
-function typeEmoji(t) {
-  return { push: '💪', pull: '🙌', legs: '🦵', core: '⚡' }[t] || '🏋️';
-}
-
-function escKey(s) { return s.replace(/'/g, "\\'"); }
-
-function exKey(name) {
-  return `${STATE.currentWeek}-${STATE.currentDayIndex}-${name}`;
-}
-function isExDone(name) {
-  return !!STATE.completedExercises[exKey(name)];
-}
-function toggleEx(name) {
-  const k = exKey(name);
-  if (STATE.completedExercises[k]) delete STATE.completedExercises[k];
-  else STATE.completedExercises[k] = true;
-  saveState();
-  renderWorkout();
-}
-
-function completeWorkout() {
-  const days = buildWeekDays(STATE.currentWeek, STATE.user.trainingDays);
-  const day = days[STATE.currentDayIndex];
-  if (!isWorkoutDone(STATE.currentWeek, STATE.currentDayIndex)) {
-    STATE.completedWorkouts.push({
-      date: dateStr(new Date()),
-      week: STATE.currentWeek,
-      dayIndex: STATE.currentDayIndex,
-      label: day.label,
-    });
-    saveState();
+  var html = '<div class="exhead"><h3>' + day.label + ' – Tag '+(S.dayIdx+1)+'</h3>';
+  html += '<p>' + doneCt + ' / ' + exList.length + ' Übungen erledigt</p></div>';
+  html += '<div class="exlist">';
+  for (var i = 0; i < exList.length; i++) {
+    var ex = exList[i];
+    var exdone = isExDone(ex[0]);
+    html += '<div class="exrow'+(exdone?' done':'')+'" onclick="toggleEx(\''+ex[0].replace(/'/g,"\\'")+'\')">'+
+      '<div class="exicon '+ex[3]+'-ic">'+EMOJIS[ex[3]]+'</div>'+
+      '<div style="flex:1"><div class="exname">'+ex[0]+'</div><div class="exdetail">'+ex[1]+'</div></div>'+
+      '<div class="exright"><div class="exsets">'+ex[2]+'</div><div class="excheck">'+(exdone?'✅':'○')+'</div></div>'+
+      '</div>';
   }
-  renderStats();
-  renderWeekDays();
-  renderWorkout();
+  html += '</div>';
+  html += '<div class="tipbox"><div class="tiptag">💡 Tipp</div><div class="tiptext">'+day.tip+'</div></div>';
+
+  if (done) {
+    html += '<div class="donebanner"><h4>Einheit abgeschlossen! 🎉</h4><p>Super Arbeit. Erhol dich gut!</p></div>';
+    html += '<button class="undonebtn" onclick="undoWorkout()">Als offen markieren</button>';
+  } else {
+    html += '<button class="completebtn"'+(allDone?'':' disabled')+' onclick="completeWk()">Einheit abschließen ✓</button>';
+  }
+  html += '<div style="height:1.5rem"></div>';
+  el.innerHTML = html;
 }
 
-function uncompleteWorkout() {
-  STATE.completedWorkouts = STATE.completedWorkouts.filter(
-    w => !(w.week === STATE.currentWeek && w.dayIndex === STATE.currentDayIndex)
-  );
-  saveState();
-  renderStats();
-  renderWeekDays();
-  renderWorkout();
+function completeWk() {
+  var days = buildDays();
+  var day = days[S.dayIdx];
+  if (!isDone(S.week, S.dayIdx)) {
+    S.done.push({ date: dstr(new Date()), week: S.week, day: S.dayIdx, label: day.label });
+    save();
+  }
+  renderStats(); renderDayChips(); renderWorkout();
+}
+function undoWorkout() {
+  S.done = S.done.filter(function(w){ return !(w.week===S.week && w.day===S.dayIdx); });
+  save(); renderStats(); renderDayChips(); renderWorkout();
 }
 
-// ═══════════════════════════════════════════
-// HISTORY TAB
-// ═══════════════════════════════════════════
+// ── HISTORY ──────────────────────────────────
 function renderHistory() {
-  const list = document.getElementById('history-list');
-  if (STATE.completedWorkouts.length === 0) {
-    list.innerHTML = `<div class="empty-state">Noch keine abgeschlossenen Einheiten.<br>Starte dein erstes Workout! 💪</div>`;
-    return;
+  var el = document.getElementById('histlist');
+  if (!S.done.length) { el.innerHTML = '<div class="empty">Noch keine Einheiten.<br>Starte dein erstes Workout! 💪</div>'; return; }
+  var sorted = S.done.slice().reverse();
+  el.innerHTML = sorted.map(function(w){
+    return '<div class="histitem"><div class="histdot"></div><div style="flex:1"><div class="histtitle">Woche '+w.week+' · '+w.label+'</div><div class="histdate">'+fdate(w.date)+'</div></div><div class="histbadge">✓ Done</div></div>';
+  }).join('');
+}
+
+// ── TABS ─────────────────────────────────────
+function showTab(tab, el) {
+  document.getElementById('tab-workout').style.display = tab==='workout' ? 'block' : 'none';
+  document.getElementById('tab-history').style.display = tab==='history' ? 'block' : 'none';
+  document.querySelectorAll('.tabitem').forEach(function(t){ t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  else {
+    var items = document.querySelectorAll('.tabitem');
+    items[tab==='workout'?0:1].classList.add('active');
   }
-  const sorted = [...STATE.completedWorkouts].reverse();
-  list.innerHTML = sorted.map(w => `
-    <div class="history-item">
-      <div class="history-dot"></div>
-      <div class="history-info">
-        <div class="history-title">Woche ${w.week} · ${w.label}</div>
-        <div class="history-date">${formatDate(w.date)}</div>
-      </div>
-      <div class="history-badge">✓ Done</div>
-    </div>
-  `).join('');
+  document.getElementById('nav-workout').className = 'navitem'+(tab==='workout'?' active':'');
+  document.getElementById('nav-history').className = 'navitem'+(tab==='history'?' active':'');
+  if (tab==='history') renderHistory();
 }
 
-// ═══════════════════════════════════════════
-// TABS
-// ═══════════════════════════════════════════
-function showTab(tab) {
-  document.getElementById('tab-workout').style.display = tab === 'workout' ? 'block' : 'none';
-  document.getElementById('tab-history').style.display = tab === 'history' ? 'block' : 'none';
-  document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', (i === 0 && tab === 'workout') || (i === 1 && tab === 'history'));
-  });
-  document.querySelectorAll('.nav-item').forEach((n, i) => {
-    n.classList.toggle('active', (i === 0 && tab === 'workout') || (i === 1 && tab === 'history'));
-  });
-  if (tab === 'history') renderHistory();
+// ── MODAL ────────────────────────────────────
+function openModal() {
+  var u = S.user;
+  document.getElementById('mname').textContent = u.name;
+  document.getElementById('mlevel').textContent = {beginner:'🌱 Anfänger',intermediate:'🔥 Fortgeschritten',advanced:'⚡ Experte'}[u.level];
+  document.getElementById('mdays').textContent = u.days + ' Tage';
+  var row = document.getElementById('mdaybtns');
+  row.innerHTML = [2,3,4,5,6].map(function(d){
+    return '<div class="daybtn'+(d===u.days?' sel':'')+'" data-v="'+d+'" onclick="setDays('+d+')">'+d+'</div>';
+  }).join('');
+  document.getElementById('modal').classList.add('open');
 }
-
-// ═══════════════════════════════════════════
-// SETTINGS MODAL
-// ═══════════════════════════════════════════
-function openSettings() {
-  const u = STATE.user;
-  document.getElementById('settings-name-display').textContent = u.name;
-  document.getElementById('settings-level-display').textContent = LEVEL_LABELS[u.level] || u.level;
-  document.getElementById('settings-days-val').textContent = u.trainingDays + ' Tage';
-  const row = document.getElementById('settings-days-row');
-  row.innerHTML = [2,3,4,5,6].map(d =>
-    `<button class="day-btn ${d === u.trainingDays ? 'selected' : ''}" data-days="${d}" onclick="setTrainingDays(${d})">${d}</button>`
-  ).join('');
-  document.getElementById('settings-modal').classList.add('open');
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function closeModalOut(e) { if (e.target.id==='modal') closeModal(); }
+function setDays(d) {
+  S.user.days = d;
+  save();
+  document.getElementById('mdays').textContent = d + ' Tage';
+  document.querySelectorAll('#mdaybtns .daybtn').forEach(function(b){ b.classList.toggle('sel', parseInt(b.dataset.v)===d); });
+  renderDayChips(); renderWorkout();
 }
-function closeSettings() { document.getElementById('settings-modal').classList.remove('open'); }
-function closeSettingsIfOutside(e) { if (e.target.id === 'settings-modal') closeSettings(); }
-
-function setTrainingDays(d) {
-  STATE.user.trainingDays = d;
-  saveState();
-  document.querySelectorAll('#settings-days-row .day-btn').forEach(b => {
-    b.classList.toggle('selected', parseInt(b.dataset.days) === d);
-  });
-  document.getElementById('settings-days-val').textContent = d + ' Tage';
-  renderWeekDays();
-  renderWorkout();
+function changeName() {
+  var n = prompt('Neuer Name:', S.user.name);
+  if (n && n.trim()) { S.user.name = n.trim(); save(); document.getElementById('mname').textContent = S.user.name; renderAll(); }
 }
-
-function editName() {
-  const n = prompt('Neuer Name:', STATE.user.name);
-  if (n && n.trim()) {
-    STATE.user.name = n.trim();
-    saveState();
-    document.getElementById('settings-name-display').textContent = STATE.user.name;
-    renderApp();
-  }
-}
-
-function resetApp() {
-  if (!confirm('Alle Daten wirklich löschen? Das kann nicht rückgängig gemacht werden.')) return;
-  localStorage.removeItem('cali_state');
+function resetAll() {
+  if (!confirm('Alle Daten wirklich löschen?')) return;
+  try { localStorage.removeItem('cali2'); } catch(e) {}
   location.reload();
 }
 
-// ═══════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════
-function dateStr(d) {
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
-function formatDate(s) {
-  const d = new Date(s);
-  return d.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
-}
+// ── UTILS ────────────────────────────────────
+function dstr(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fdate(s) { return new Date(s).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'}); }
 
-// ═══════════════════════════════════════════
-// BOOT
-// ═══════════════════════════════════════════
-function boot() {
-  loadState();
-  if (STATE.user && STATE.user.name && STATE.user.level && STATE.user.trainingDays) {
-    showApp();
-  } else {
-    document.getElementById('setup-screen').classList.add('active');
-    document.getElementById('app-screen').classList.remove('active');
-  }
+// ── BOOT ─────────────────────────────────────
+load();
+if (S.user && S.user.name) {
+  launchApp();
+} else {
+  document.getElementById('setup-screen').classList.add('show');
 }
-boot();
 </script>
 </body>
 </html>
