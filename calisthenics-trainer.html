@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calisthenics Trainer</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f0f;
+    --bg2: #1a1a1a;
+    --bg3: #242424;
+    --bg4: #2e2e2e;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --text: #f0f0f0;
+    --text2: #a0a0a0;
+    --text3: #666;
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.12);
+    --green-border: rgba(34,197,94,0.3);
+    --blue: #3b82f6;
+    --blue-dim: rgba(59,130,246,0.12);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --radius: 12px;
+    --radius-sm: 8px;
+    font-size: 16px;
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: block; }
+
+  /* ── SETUP SCREEN ── */
+  #setup-screen { display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
+  .setup-card { background: var(--bg2); border: 1px solid var(--border2); border-radius: 20px; padding: 2.5rem 2rem; max-width: 440px; width: 100%; }
+  .setup-logo { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); margin-bottom: 1.5rem; }
+  .setup-card h1 { font-size: 28px; font-weight: 600; margin-bottom: 0.4rem; line-height: 1.2; }
+  .setup-card p { color: var(--text2); font-size: 14px; margin-bottom: 2rem; line-height: 1.6; }
+  .form-group { margin-bottom: 1.2rem; }
+  .form-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text2); margin-bottom: 6px; display: block; }
+  .form-input { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text); font-size: 15px; outline: none; transition: border-color 0.15s; }
+  .form-input:focus { border-color: var(--green); }
+  .form-input::placeholder { color: var(--text3); }
+  .level-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .level-btn { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.15s; color: var(--text2); font-size: 13px; }
+  .level-btn:hover { border-color: var(--border2); color: var(--text); }
+  .level-btn.selected { border-color: var(--green); background: var(--green-dim); color: var(--green); }
+  .level-btn .level-icon { font-size: 20px; margin-bottom: 4px; display: block; }
+  .days-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .day-btn { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; cursor: pointer; font-size: 14px; color: var(--text2); transition: all 0.15s; flex: 1; text-align: center; min-width: 36px; }
+  .day-btn:hover { border-color: var(--border2); color: var(--text); }
+  .day-btn.selected { border-color: var(--green); background: var(--green-dim); color: var(--green); font-weight: 600; }
+  .btn-primary { width: 100%; background: var(--green); color: #000; border: none; border-radius: var(--radius-sm); padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 1.5rem; transition: opacity 0.15s; }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── MAIN APP ── */
+  #app-screen { padding-bottom: 80px; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 1.25rem 0.8rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 10; }
+  .topbar-left h2 { font-size: 18px; font-weight: 600; }
+  .topbar-left p { font-size: 12px; color: var(--text2); margin-top: 1px; }
+  .topbar-right { display: flex; gap: 8px; align-items: center; }
+  .user-pill { background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 6px 12px; font-size: 13px; color: var(--text2); cursor: pointer; }
+  .icon-btn { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); font-size: 16px; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 4px; padding: 1rem 1.25rem 0; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { padding: 7px 16px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; cursor: pointer; white-space: nowrap; color: var(--text2); background: transparent; transition: all 0.15s; }
+  .tab:hover { border-color: var(--border2); color: var(--text); }
+  .tab.active { background: var(--green); border-color: var(--green); color: #000; font-weight: 600; }
+
+  /* ── STATS ROW ── */
+  .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; padding: 1rem 1.25rem; }
+  .stat-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.75rem 1rem; }
+  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text3); margin-bottom: 4px; }
+  .stat-val { font-size: 20px; font-weight: 600; color: var(--green); }
+
+  /* ── WEEK VIEW ── */
+  .section-heading { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); padding: 0 1.25rem; margin-bottom: 8px; }
+  .week-days { display: flex; gap: 6px; padding: 0 1.25rem; overflow-x: auto; scrollbar-width: none; margin-bottom: 1.2rem; }
+  .week-days::-webkit-scrollbar { display: none; }
+  .wday { flex-shrink: 0; width: 68px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 8px; text-align: center; cursor: pointer; transition: all 0.15s; }
+  .wday:hover { border-color: var(--border2); }
+  .wday.active-day { border-color: var(--green); background: var(--green-dim); }
+  .wday.done { border-color: var(--green); }
+  .wday.rest-day { opacity: 0.45; cursor: default; }
+  .wday-name { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 4px; }
+  .wday-label { font-size: 12px; font-weight: 500; color: var(--text2); line-height: 1.3; }
+  .wday.active-day .wday-label { color: var(--green); }
+  .wday-check { font-size: 16px; margin-top: 4px; }
+
+  /* ── EXERCISE LIST ── */
+  .ex-header { padding: 0 1.25rem; margin-bottom: 1rem; }
+  .ex-header h3 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+  .ex-header p { font-size: 13px; color: var(--text2); }
+  .ex-list { padding: 0 1.25rem; display: flex; flex-direction: column; gap: 8px; }
+  .ex-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 12px; transition: border-color 0.15s; cursor: pointer; }
+  .ex-card:hover { border-color: var(--border2); }
+  .ex-card.completed { border-color: var(--green); background: var(--green-dim); }
+  .ex-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .ex-icon.push { background: rgba(59,130,246,0.15); }
+  .ex-icon.pull { background: rgba(139,92,246,0.15); }
+  .ex-icon.legs { background: rgba(245,158,11,0.15); }
+  .ex-icon.core { background: rgba(34,197,94,0.15); }
+  .ex-body { flex: 1; }
+  .ex-name { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+  .ex-detail { font-size: 12px; color: var(--text2); }
+  .ex-sets { font-size: 14px; font-weight: 600; color: var(--green); text-align: right; white-space: nowrap; }
+  .ex-card.completed .ex-check { color: var(--green); font-size: 20px; }
+
+  /* ── TIP ── */
+  .tip-card { margin: 1rem 1.25rem; background: var(--bg2); border: 1px solid var(--green-border); border-radius: var(--radius); padding: 0.85rem 1rem; }
+  .tip-tag { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--green); margin-bottom: 4px; }
+  .tip-text { font-size: 13px; color: var(--text2); line-height: 1.55; }
+
+  /* ── DONE BANNER ── */
+  .done-banner { margin: 1rem 1.25rem; background: var(--green-dim); border: 1px solid var(--green-border); border-radius: var(--radius); padding: 1.2rem; text-align: center; display: none; }
+  .done-banner h4 { color: var(--green); font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .done-banner p { font-size: 13px; color: var(--text2); }
+
+  /* ── COMPLETE WORKOUT BTN ── */
+  .complete-btn { margin: 1rem 1.25rem 0; width: calc(100% - 2.5rem); background: var(--green); color: #000; border: none; border-radius: var(--radius-sm); padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+  .complete-btn:hover { opacity: 0.88; }
+  .complete-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* ── HISTORY TAB ── */
+  .history-list { padding: 0 1.25rem; display: flex; flex-direction: column; gap: 8px; }
+  .history-item { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 12px; }
+  .history-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .history-dot.missed { background: var(--border2); }
+  .history-info { flex: 1; }
+  .history-title { font-size: 14px; font-weight: 500; }
+  .history-date { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .history-badge { font-size: 11px; padding: 3px 10px; border-radius: 10px; background: var(--green-dim); color: var(--green); }
+  .empty-state { text-align: center; padding: 3rem 1.25rem; color: var(--text3); font-size: 14px; }
+
+  /* ── SETTINGS / USER MODAL ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: flex-end; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 20px 20px 0 0; padding: 1.5rem 1.25rem 2rem; width: 100%; max-width: 520px; }
+  .modal-handle { width: 36px; height: 4px; background: var(--bg4); border-radius: 2px; margin: 0 auto 1.2rem; }
+  .modal h3 { font-size: 18px; font-weight: 600; margin-bottom: 1rem; }
+  .modal-section { margin-bottom: 1.5rem; }
+  .modal-row { display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 0; border-bottom: 1px solid var(--border); }
+  .modal-row:last-child { border-bottom: none; }
+  .modal-row-label { font-size: 14px; }
+  .modal-row-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
+  .modal-row-val { font-size: 14px; color: var(--green); font-weight: 500; }
+  .modal-days-row { display: flex; gap: 6px; margin-top: 0.8rem; flex-wrap: wrap; }
+  .btn-sm { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 14px; color: var(--text2); font-size: 13px; cursor: pointer; transition: all 0.15s; }
+  .btn-sm:hover { border-color: var(--border2); color: var(--text); }
+  .btn-danger { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: var(--red); width: 100%; text-align: center; padding: 12px; margin-top: 0.5rem; }
+
+  /* ── WEEK SELECTOR ── */
+  .week-selector { display: flex; align-items: center; gap: 10px; padding: 0.8rem 1.25rem 0; margin-bottom: 0.5rem; }
+  .week-selector button { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); width: 30px; height: 30px; color: var(--text2); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .week-selector span { font-size: 14px; font-weight: 500; flex: 1; text-align: center; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap { padding: 0 1.25rem; margin-bottom: 1rem; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
+  .progress-bar { height: 5px; background: var(--bg4); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width 0.4s ease; }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg); border-top: 1px solid var(--border); display: flex; z-index: 20; }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 0; cursor: pointer; color: var(--text3); font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; gap: 4px; transition: color 0.15s; }
+  .nav-item.active { color: var(--green); }
+  .nav-icon { font-size: 20px; }
+
+  /* ── REST DAY SCREEN ── */
+  .rest-view { padding: 2rem 1.25rem; text-align: center; }
+  .rest-view h3 { font-size: 22px; font-weight: 600; margin-bottom: 0.5rem; }
+  .rest-view p { font-size: 14px; color: var(--text2); line-height: 1.7; max-width: 320px; margin: 0 auto; }
+  .rest-emoji { font-size: 52px; margin-bottom: 1rem; }
+
+  @media (min-width: 600px) {
+    .stats-row { grid-template-columns: repeat(3,1fr); }
+    .setup-card { padding: 3rem 2.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ SETUP SCREEN ══ -->
+<div id="setup-screen" class="screen active">
+  <div class="setup-card">
+    <div class="setup-logo">● Calisthenics Trainer</div>
+    <h1>Dein Training,<br>dein Fortschritt.</h1>
+    <p>Richte deinen persönlichen Trainingsplan ein. Kein Equipment nötig – nur du, dein Körper und der Boden.</p>
+
+    <div class="form-group">
+      <label class="form-label" for="user-name">Dein Name</label>
+      <input class="form-input" id="user-name" type="text" placeholder="z.B. Max" maxlength="30">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Erfahrungslevel</label>
+      <div class="level-grid">
+        <div class="level-btn" data-level="beginner" onclick="selectLevel(this)">
+          <span class="level-icon">🌱</span> Anfänger
+        </div>
+        <div class="level-btn" data-level="intermediate" onclick="selectLevel(this)">
+          <span class="level-icon">🔥</span> Fortge­schritten
+        </div>
+        <div class="level-btn" data-level="advanced" onclick="selectLevel(this)">
+          <span class="level-icon">⚡</span> Experte
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Trainingstage pro Woche</label>
+      <div class="days-row" id="days-picker">
+        <div class="day-btn" data-days="2" onclick="selectDays(this)">2</div>
+        <div class="day-btn" data-days="3" onclick="selectDays(this)">3</div>
+        <div class="day-btn" data-days="4" onclick="selectDays(this)">4</div>
+        <div class="day-btn" data-days="5" onclick="selectDays(this)">5</div>
+        <div class="day-btn" data-days="6" onclick="selectDays(this)">6</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="start-btn" disabled onclick="startApp()">Training starten →</button>
+  </div>
+</div>
+
+<!-- ══ APP SCREEN ══ -->
+<div id="app-screen" class="screen">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h2 id="topbar-title">Training</h2>
+      <p id="topbar-sub">Woche 1</p>
+    </div>
+    <div class="topbar-right">
+      <div class="user-pill" id="user-pill" onclick="openSettings()">👤 <span id="user-pill-name"></span></div>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('workout')">Workout</div>
+    <div class="tab" onclick="showTab('history')">Verlauf</div>
+  </div>
+
+  <!-- ── WORKOUT TAB ── -->
+  <div id="tab-workout">
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-label">Einheiten</div>
+        <div class="stat-val" id="stat-done">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Streak</div>
+        <div class="stat-val" id="stat-streak">0🔥</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Gesamt</div>
+        <div class="stat-val" id="stat-total">0</div>
+      </div>
+    </div>
+
+    <!-- Week selector -->
+    <div class="week-selector">
+      <button onclick="changeWeek(-1)">‹</button>
+      <span id="week-label">Woche 1 von 4</span>
+      <button onclick="changeWeek(1)">›</button>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Wochenfortschritt</span><span id="progress-pct">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+
+    <!-- Week day chips -->
+    <p class="section-heading">Diese Woche</p>
+    <div class="week-days" id="week-days"></div>
+
+    <!-- Exercise area -->
+    <div id="workout-content"></div>
+  </div>
+
+  <!-- ── HISTORY TAB ── -->
+  <div id="tab-history" style="display:none; padding-top:1rem;">
+    <div class="history-list" id="history-list"></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="showTab('workout')">
+      <span class="nav-icon">🏋️</span> Workout
+    </div>
+    <div class="nav-item" onclick="showTab('history')">
+      <span class="nav-icon">📊</span> Verlauf
+    </div>
+  </div>
+</div>
+
+<!-- ══ SETTINGS MODAL ══ -->
+<div class="modal-overlay" id="settings-modal" onclick="closeSettingsIfOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Einstellungen</h3>
+
+    <div class="modal-section">
+      <div class="modal-row">
+        <div>
+          <div class="modal-row-label">Name</div>
+          <div class="modal-row-sub" id="settings-name-display"></div>
+        </div>
+        <button class="btn-sm" onclick="editName()">Ändern</button>
+      </div>
+      <div class="modal-row">
+        <div>
+          <div class="modal-row-label">Level</div>
+          <div class="modal-row-sub" id="settings-level-display"></div>
+        </div>
+      </div>
+      <div class="modal-row">
+        <div>
+          <div class="modal-row-label">Trainingstage / Woche</div>
+          <div class="modal-row-sub">Wie viele Tage hast du diese Woche Zeit?</div>
+        </div>
+        <div class="modal-row-val" id="settings-days-val"></div>
+      </div>
+      <div class="modal-days-row" id="settings-days-row"></div>
+    </div>
+
+    <button class="btn-sm btn-danger" onclick="resetApp()">⚠ Alle Daten zurücksetzen</button>
+    <button class="btn-sm" style="width:100%;text-align:center;margin-top:8px;" onclick="closeSettings()">Schließen</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA – EXERCISES (no equipment / home items only)
+// ═══════════════════════════════════════════════
+const LEVEL_LABELS = { beginner: '🌱 Anfänger', intermediate: '🔥 Fortgeschritten', advanced: '⚡ Experte' };
+const WEEK_LABELS = { 1: 'Basis', 2: 'Aufbau', 3: 'Intensiv', 4: 'Peak' };
+const LEVEL_STAT = { beginner: 'Basis', intermediate: 'Aufbau', advanced: 'Expert' };
+
+// Template: exercise {name, detail (hint about home item if needed), sets, type}
+const PLANS = {
+  beginner: {
+    1: [
+      { label: 'Push', type: 'push', icon: '💪', tip: 'Halte oben 1 Sek. – das erhöht die Spannung.',
+        exercises: [
+          { name: 'Liegestütze', detail: 'Schulterbreit, Boden', sets: '3×8', type: 'push' },
+          { name: 'Liegestütze auf Knien', detail: 'Knie auf Boden, Rücken gerade', sets: '3×10', type: 'push' },
+          { name: 'Dips (Stuhlkante)', detail: 'Stuhl hinter dir, Hände auf Kante', sets: '3×8', type: 'push' },
+          { name: 'Plank', detail: 'Boden, Körper gerade wie ein Brett', sets: '3×20s', type: 'core' },
+          { name: 'Schulterheben liegend', detail: 'Bauchlage, Arme seitlich heben', sets: '3×12', type: 'push' },
+        ]},
+      { label: 'Pull', type: 'pull', icon: '🙌', tip: 'Schulterblätter aktiv zusammenziehen – nicht nur mit den Armen.',
+        exercises: [
+          { name: 'Tischrudern', detail: 'Unter Tisch hängen, Brust zum Tisch ziehen', sets: '3×8', type: 'pull' },
+          { name: 'Superman Hold', detail: 'Bauchlage, Arme vorne, alles heben', sets: '3×10', type: 'core' },
+          { name: 'Scapula Retraktion', detail: 'An Türrahmen lehnen, Blätter quetschen', sets: '3×12', type: 'pull' },
+          { name: 'Hollow Body Hold', detail: 'Rücken flach am Boden, Beine leicht heben', sets: '3×15s', type: 'core' },
+          { name: 'Rückenstrecken', detail: 'Bauchlage auf Boden, Oberkörper heben', sets: '3×12', type: 'pull' },
+        ]},
+      { label: 'Beine', type: 'legs', icon: '🦵', tip: 'Knie zeigen in Zehenrichtung – immer!',
+        exercises: [
+          { name: 'Kniebeugen', detail: 'Schulterbreit, tief sitzen', sets: '4×12', type: 'legs' },
+          { name: 'Ausfallschritte', detail: 'Wechselbeinig, Knie knapp über Boden', sets: '3×8 je Seite', type: 'legs' },
+          { name: 'Glute Bridge', detail: 'Rücken am Boden, Hüfte heben', sets: '3×15', type: 'legs' },
+          { name: 'Wadenheben (Stuhlkante)', detail: 'Zehenspitzen auf Kante, heben/senken', sets: '3×20', type: 'legs' },
+          { name: 'Seitstep Squat', detail: 'Weit zur Seite treten, senken', sets: '3×10 je Seite', type: 'legs' },
+        ]},
+      { label: 'Core', type: 'core', icon: '⚡', tip: 'Slow & controlled – Tempo ist dein Widerstand.',
+        exercises: [
+          { name: 'Crunches', detail: 'Rücken am Boden, kurze saubere Bewegung', sets: '3×15', type: 'core' },
+          { name: 'Beinsenken', detail: 'Beine gestreckt langsam senken', sets: '3×10', type: 'core' },
+          { name: 'Seitenplank', detail: 'Ellenbogen auf Boden, Hüfte gerade', sets: '3×20s je Seite', type: 'core' },
+          { name: 'Mountain Climbers', detail: 'In Liegestützposition, Knie wechseln', sets: '3×20', type: 'core' },
+          { name: 'Dead Bug', detail: 'Rücken flach, gegengleiche Arm+Bein senken', sets: '3×8 je Seite', type: 'core' },
+        ]},
+      { label: 'Ganzkörper', type: 'push', icon: '🌀', tip: 'Volle Kontrolle ist wichtiger als Geschwindigkeit.',
+        exercises: [
+          { name: 'Burpees (langsam)', detail: 'Komplett auf Boden, kontrolliert aufstehen', sets: '3×6', type: 'push' },
+          { name: 'Kniebeugen + Armheben', detail: 'Mit kleinen Wasserflaschen als Gewicht', sets: '3×12', type: 'legs' },
+          { name: 'Liegestütze + Reihe', detail: 'Liegestütz, dann Arm ziehen', sets: '3×6 je Seite', type: 'push' },
+          { name: 'Squat Hold', detail: 'Tiefste Position 30 Sekunden halten', sets: '3×30s', type: 'legs' },
+          { name: 'Plank Schultertipp', detail: 'Plank, abwechselnd Schulter tippen', sets: '3×10 je Seite', type: 'core' },
+        ]},
+    ],
+    2: [
+      { label: 'Push', type: 'push', icon: '💪', tip: '+2 Wdh. gegenüber letzter Woche – kleiner Schritt, große Wirkung.',
+        exercises: [
+          { name: 'Liegestütze', detail: 'Jetzt 10 Wdh. anstreben', sets: '4×10', type: 'push' },
+          { name: 'Enge Liegestütze', detail: 'Hände nah beisammen, Trizeps', sets: '3×8', type: 'push' },
+          { name: 'Dips (tief)', detail: 'Stuhlkante, tiefst möglich', sets: '3×10', type: 'push' },
+          { name: 'Plank', detail: 'Länger: 30 Sekunden', sets: '4×30s', type: 'core' },
+          { name: 'Pike Liegestütze', detail: 'V-Haltung (Hüfte hoch), Kopf nach unten', sets: '3×8', type: 'push' },
+        ]},
+      { label: 'Pull', type: 'pull', icon: '🙌', tip: 'Konzentriere dich auf die Zugphase – 2 Sek. ziehen, 3 Sek. loslassen.',
+        exercises: [
+          { name: 'Tischrudern (tiefer)', detail: 'Tisch höher, mehr Körpergewicht', sets: '4×10', type: 'pull' },
+          { name: 'Handtuch-Rudern', detail: 'Handtuch um Türgriff, Körper zurücklehnen', sets: '3×10', type: 'pull' },
+          { name: 'Superman + Hold', detail: '3 Sekunden oben halten', sets: '3×10', type: 'core' },
+          { name: 'Hollow Body Rock', detail: 'In Hollow Body vor und zurück schaukeln', sets: '3×12', type: 'core' },
+          { name: 'Rückenstrecken mit Rotation', detail: 'Oben links-rechts drehen', sets: '3×10 je Seite', type: 'pull' },
+        ]},
+      { label: 'Beine', type: 'legs', icon: '🦵', tip: 'Tempo runter auf 3 Sek. runter, 1 oben, 2 hoch.',
+        exercises: [
+          { name: 'Slow Kniebeugen', detail: '3 Sek. runter, 2 Sek. hoch', sets: '4×12', type: 'legs' },
+          { name: 'Einbein Glute Bridge', detail: 'Ein Bein gestreckt, Hüfte heben', sets: '3×12 je Seite', type: 'legs' },
+          { name: 'Sumo Squat', detail: 'Breite Stellung, Zehen auswärts', sets: '3×15', type: 'legs' },
+          { name: 'Reverse Lunges', detail: 'Schritt nach hinten, Knie knapp über Boden', sets: '3×10 je Seite', type: 'legs' },
+          { name: 'Wadenheben einbeinig', detail: 'An Wand festhalten, einbeinig', sets: '3×15 je Seite', type: 'legs' },
+        ]},
+      { label: 'Core', type: 'core', icon: '⚡', tip: 'Atme aus beim Anspannen – das aktiviert den Core tiefer.',
+        exercises: [
+          { name: 'Bicycle Crunches', detail: 'Ellenbogen zum gegenüber Knie', sets: '3×15 je Seite', type: 'core' },
+          { name: 'Reverse Crunch', detail: 'Beine heben, Hüfte leicht vom Boden', sets: '3×12', type: 'core' },
+          { name: 'Plank Variationen', detail: 'Vorne, links, rechts je 20s', sets: '3×20s je', type: 'core' },
+          { name: 'V-Ups', detail: 'Arme und Beine gleichzeitig zur Mitte', sets: '3×10', type: 'core' },
+          { name: 'Bear Crawl', detail: '4 Schritte vor, 4 zurück', sets: '3×30s', type: 'core' },
+        ]},
+      { label: 'Ganzkörper', type: 'push', icon: '🌀', tip: 'Kombinationsübungen trainieren Koordination und Kraft gleichzeitig.',
+        exercises: [
+          { name: 'Burpees', detail: 'Normal, zügig aber sauber', sets: '4×8', type: 'push' },
+          { name: 'Liegestütz + Seitenplank', detail: 'Liegestütz, dann Rotation in Seitenplank', sets: '3×6 je Seite', type: 'push' },
+          { name: 'Jump Squats', detail: 'Weich landen (Knie weich!)', sets: '3×10', type: 'legs' },
+          { name: 'Mountain Climbers', detail: 'Schneller, 30 Sekunden am Stück', sets: '3×30s', type: 'core' },
+          { name: 'Trichter-Plank', detail: 'Plank zu Downward Dog wechseln', sets: '3×10', type: 'core' },
+        ]},
+    ],
+    3: [
+      { label: 'Push', type: 'push', icon: '💪', tip: 'Ab Woche 3: Qualität schlägt Quantität – jede Wdh. bewusst.',
+        exercises: [
+          { name: 'Archer Liegestütze', detail: 'Zur Seite ausstrecken, einseitige Last', sets: '3×6 je Seite', type: 'push' },
+          { name: 'Pike Liegestütze (erhöht)', detail: 'Füße auf Stuhl, V-Haltung', sets: '4×10', type: 'push' },
+          { name: 'Dips Pause', detail: 'Stuhl, 2 Sek. in tiefster Position halten', sets: '4×8', type: 'push' },
+          { name: 'Plank Shoulder Tap', detail: 'Hüfte ruhig halten!', sets: '4×10 je Seite', type: 'core' },
+          { name: 'Liegestütz + 3 Sek. Hold oben', detail: 'Arme gestreckt kurz halten', sets: '3×8', type: 'push' },
+        ]},
+      { label: 'Pull', type: 'pull', icon: '🙌', tip: 'Handtuch-Rudern intensiver machen: Füße höher legen.',
+        exercises: [
+          { name: 'Tischrudern (Füße erhöht)', detail: 'Füße auf zweitem Stuhl', sets: '4×10', type: 'pull' },
+          { name: 'Einarm-Handtuch-Rudern', detail: 'Ein Arm, andere Hand leicht am Türgriff', sets: '3×8 je Seite', type: 'pull' },
+          { name: 'Superman Sequence', detail: 'Heben, 5s halten, Arme seitlich, 5s halten', sets: '3×6', type: 'core' },
+          { name: 'L-Sitz (Stuhl)', detail: 'Hände auf Stuhlarmlehnen, Beine heben', sets: '3×8s', type: 'core' },
+          { name: 'Reverse Snow Angels', detail: 'Bauchlage, Arme in Bogen von oben nach unten', sets: '3×12', type: 'pull' },
+        ]},
+      { label: 'Beine', type: 'legs', icon: '🦵', tip: 'Einbeinige Übungen zeigen Schwächen im Gleichgewicht – bleib dran.',
+        exercises: [
+          { name: 'Pistol Squat (Stuhl)', detail: 'An Stuhlrücken festhalten, einbeinig', sets: '4×6 je Seite', type: 'legs' },
+          { name: 'Bulgarian Split Squat', detail: 'Hinteres Bein auf Stuhl, tief sinken', sets: '3×8 je Seite', type: 'legs' },
+          { name: 'Nordic Curl (Sofa)', detail: 'Fersen unter Sofakante, nach vorne fallen', sets: '3×4', type: 'legs' },
+          { name: 'Jump Lunge', detail: 'Explosiv wechseln, weich landen', sets: '3×8 je Seite', type: 'legs' },
+          { name: 'Squat Pulse', detail: '30 Sek. kleine Bewegungen tief in der Squat', sets: '3×30s', type: 'legs' },
+        ]},
+      { label: 'Core', type: 'core', icon: '⚡', tip: 'Dragon Flag beginnt mit engem Tuck – bitte kein Hohlkreuz!',
+        exercises: [
+          { name: 'Hanging Knee Raise (Türrahmen)', detail: 'An Türrahmen hängen, Knie heben', sets: '3×10', type: 'core' },
+          { name: 'Dragon Flag (Tuck)', detail: 'Auf Boden, Hände am Boden über Kopf greifen', sets: '3×5', type: 'core' },
+          { name: 'Hollow Body Hold', detail: '25 Sekunden, unterer Rücken am Boden', sets: '4×25s', type: 'core' },
+          { name: 'Ab Wheel (Flasche)', detail: 'Wasserflasche als Rolle, kniend', sets: '3×8', type: 'core' },
+          { name: 'Russian Twists', detail: 'Mit Wasserflasche als Gewicht', sets: '3×15 je Seite', type: 'core' },
+        ]},
+      { label: 'Ganzkörper', type: 'push', icon: '🌀', tip: 'Flow-Training: Übergänge between Moves trainieren = echte Körperkontrolle.',
+        exercises: [
+          { name: 'Burpee + Liegestütz', detail: 'Vollständiger Burpee mit Liegestütz unten', sets: '4×8', type: 'push' },
+          { name: 'Squat + Dips Kombi', detail: '5 Squats, dann 5 Dips, 4 Runden', sets: '4 Runden', type: 'legs' },
+          { name: 'Tischrudern + Liegestütz', detail: '6 Rudern, sofort 6 Liegestütz', sets: '4 Runden', type: 'pull' },
+          { name: 'Plank Kombi', detail: 'Vorne 30s → Seite 20s → Seite 20s', sets: '3 Runden', type: 'core' },
+          { name: 'Cool-Down Mobility', detail: 'Schultern, Hüfte, Wirbelsäule dehnen', sets: '5 Min.', type: 'core' },
+        ]},
+    ],
+    4: [
+      { label: 'Peak Push', type: 'push', icon: '💪', tip: 'Das ist deine Testeinheit – notiere Maximalwdh. für den nächsten Zyklus.',
+        exercises: [
+          { name: 'Liegestütz Max', detail: 'Wie viele saubere Wdh. in einem Satz?', sets: '3 × max', type: 'push' },
+          { name: 'Archer Liegestütze', detail: 'Beste Form, kein Cheating', sets: '4×8 je Seite', type: 'push' },
+          { name: 'Pike Liegestütz (Stuhl)', detail: 'Stuhl, volle ROM', sets: '5×10', type: 'push' },
+          { name: 'Weighted Dips', detail: 'Rucksack mit Büchern = Zusatzlast', sets: '4×8', type: 'push' },
+          { name: 'Plank Komplex', detail: 'Vorne 45s, Seite 30s, Seite 30s', sets: '3 Runden', type: 'core' },
+        ]},
+      { label: 'Peak Pull', type: 'pull', icon: '🙌', tip: 'Maximales Tischrudern heute – schiebe Grenzen sauber aus.',
+        exercises: [
+          { name: 'Tischrudern Max', detail: 'Max Wdh. in einem Satz, notieren', sets: '3 × max', type: 'pull' },
+          { name: 'Einarm Rudern (Tisch)', detail: 'So wenig Hilfe wie nötig', sets: '4×6 je Seite', type: 'pull' },
+          { name: 'Handtuch-Rudern (Füße hoch)', detail: 'Maximale Belastung durch Fußhöhe', sets: '4×10', type: 'pull' },
+          { name: 'L-Sitz (Stuhl)', detail: 'Haltezeit maximieren', sets: '4 × max', type: 'core' },
+          { name: 'Hanging Knee Raise', detail: 'An Türrahmen, Beine strecken versuchen', sets: '4×10', type: 'core' },
+        ]},
+      { label: 'Peak Beine', type: 'legs', icon: '🦵', tip: 'Pistol Squat frei stehend – auch wenn er wackelt. Wackeln = lernen.',
+        exercises: [
+          { name: 'Pistol Squat frei', detail: 'An Wand nur wenn nötig', sets: '5×5 je Seite', type: 'legs' },
+          { name: 'Bulgarian Split Squat', detail: 'Tiefer als letzte Woche', sets: '4×10 je Seite', type: 'legs' },
+          { name: 'Nordic Curl', detail: '4 Sek. eccentrisch, so tief wie möglich', sets: '4×5', type: 'legs' },
+          { name: 'Jump Squat Max', detail: 'Max Höhe, weich landen', sets: '4×10', type: 'legs' },
+          { name: 'Wadenheben einbeinig', detail: 'Ohne Festhalten versuchen', sets: '4×20 je Seite', type: 'legs' },
+        ]},
+      { label: 'Skill & Flow', type: 'core', icon: '🌀', tip: 'Heute kein Plan – entwickle deinen eigenen Stil und genieß es.',
+        exercises: [
+          { name: 'Freie Kombination', detail: 'Lieblings-Übungen kombinieren', sets: '20 Min. frei', type: 'push' },
+          { name: 'Dragon Flag', detail: 'Tuck oder gestreckt – best effort', sets: '4×5', type: 'core' },
+          { name: 'L-Sitz zu V-Sitz', detail: 'Transition üben', sets: '3×5 Versuche', type: 'core' },
+          { name: 'Handstand (Wand)', detail: 'Wand-Handstand, so lange wie möglich', sets: '5 × max', type: 'push' },
+          { name: 'Stretching Routine', detail: 'Schultern, Hüfte, Hamstrings, Wirbelsäule', sets: '10 Min.', type: 'core' },
+        ]},
+    ],
+  }
+};
+// Intermediate / Advanced: same structure, harder progressions
+// For brevity, intermediate = beginner exercises +1 set and "harder" note
+function buildIntermediatePlan() {
+  const plan = {};
+  for (let w = 1; w <= 4; w++) {
+    plan[w] = PLANS.beginner[w].map(day => ({
+      ...day,
+      tip: day.tip + ' (Intermediate: +1 Satz, engere Form)',
+      exercises: day.exercises.map(ex => ({
+        ...ex,
+        sets: ex.sets.replace(/(\d+)×(\d+)/, (m, s, r) => `${parseInt(s)+1}×${parseInt(r)+2}`),
+        detail: ex.detail + ' – enger / langsamer',
+      }))
+    }));
+  }
+  return plan;
+}
+function buildAdvancedPlan() {
+  const plan = {};
+  for (let w = 1; w <= 4; w++) {
+    plan[w] = PLANS.beginner[w].map(day => ({
+      ...day,
+      tip: day.tip + ' (Expert: explosiver, tempo variation)',
+      exercises: day.exercises.map(ex => ({
+        ...ex,
+        sets: ex.sets.replace(/(\d+)×(\d+)/, (m, s, r) => `${parseInt(s)+2}×${parseInt(r)+4}`),
+        detail: ex.detail + ' – explosiv / gewichtet',
+      }))
+    }));
+  }
+  return plan;
+}
+PLANS.intermediate = buildIntermediatePlan();
+PLANS.advanced = buildAdvancedPlan();
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let STATE = {
+  user: null, // { name, level, trainingDays }
+  currentWeek: 1,
+  currentDayIndex: 0,
+  completedWorkouts: [], // [{ date, week, dayIndex, label }]
+  completedExercises: {}, // key: "w-d-eName" → true
+};
+
+function saveState() { localStorage.setItem('cali_state', JSON.stringify(STATE)); }
+function loadState() {
+  const raw = localStorage.getItem('cali_state');
+  if (raw) { try { STATE = JSON.parse(raw); } catch(e) {} }
+}
+
+// ═══════════════════════════════════════════
+// SETUP
+// ═══════════════════════════════════════════
+let setupLevel = null;
+let setupDays = null;
+
+function selectLevel(el) {
+  document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  setupLevel = el.dataset.level;
+  checkSetupReady();
+}
+function selectDays(el) {
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  setupDays = parseInt(el.dataset.days);
+  checkSetupReady();
+}
+function checkSetupReady() {
+  const name = document.getElementById('user-name').value.trim();
+  document.getElementById('start-btn').disabled = !(name && setupLevel && setupDays);
+}
+document.getElementById('user-name').addEventListener('input', checkSetupReady);
+
+function startApp() {
+  const name = document.getElementById('user-name').value.trim();
+  STATE.user = { name, level: setupLevel, trainingDays: setupDays };
+  STATE.currentWeek = 1;
+  STATE.currentDayIndex = 0;
+  STATE.completedWorkouts = [];
+  STATE.completedExercises = {};
+  saveState();
+  showApp();
+}
+
+// ═══════════════════════════════════════════
+// APP INIT
+// ═══════════════════════════════════════════
+function showApp() {
+  document.getElementById('setup-screen').classList.remove('active');
+  document.getElementById('app-screen').classList.add('active');
+  renderApp();
+}
+
+function renderApp() {
+  const u = STATE.user;
+  document.getElementById('user-pill-name').textContent = u.name;
+  document.getElementById('topbar-title').textContent = 'Hallo, ' + u.name + ' 👋';
+  document.getElementById('topbar-sub').textContent = 'Woche ' + STATE.currentWeek + ' · ' + WEEK_LABELS[STATE.currentWeek];
+  renderStats();
+  renderWeekDays();
+  renderWorkout();
+}
+
+function renderStats() {
+  const done = STATE.completedWorkouts.length;
+  document.getElementById('stat-done').textContent = done;
+  document.getElementById('stat-total').textContent = done * 5; // rough exercise count
+  // Streak: consecutive days
+  let streak = 0;
+  const today = dateStr(new Date());
+  const dates = [...new Set(STATE.completedWorkouts.map(w => w.date))].sort().reverse();
+  let check = today;
+  for (const d of dates) {
+    if (d === check) { streak++; const dt = new Date(check); dt.setDate(dt.getDate()-1); check = dateStr(dt); }
+    else break;
+  }
+  document.getElementById('stat-streak').textContent = streak + '🔥';
+}
+
+function renderWeekDays() {
+  const days = buildWeekDays(STATE.currentWeek, STATE.user.trainingDays);
+  const container = document.getElementById('week-days');
+  container.innerHTML = days.map((d, i) => {
+    const isDone = isWorkoutDone(STATE.currentWeek, i);
+    const isActive = i === STATE.currentDayIndex && !d.rest;
+    return `<div class="wday ${isActive?'active-day':''} ${isDone&&!d.rest?'done':''} ${d.rest?'rest-day':''}" 
+      onclick="${d.rest ? '' : 'setDay('+i+')'}">
+      <div class="wday-name">Tag ${i+1}</div>
+      <div class="wday-label">${d.rest ? 'Pause' : d.label}</div>
+      <div class="wday-check">${isDone && !d.rest ? '✅' : d.rest ? '😴' : '○'}</div>
+    </div>`;
+  }).join('');
+
+  // Progress
+  const trainDays = days.filter(d => !d.rest);
+  const doneDays = trainDays.filter((d,i) => isWorkoutDone(STATE.currentWeek, days.indexOf(d)));
+  // recalculate
+  let doneCount = 0;
+  days.forEach((d, i) => { if (!d.rest && isWorkoutDone(STATE.currentWeek, i)) doneCount++; });
+  const pct = trainDays.length ? Math.round(doneCount / trainDays.length * 100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('week-label').textContent = 'Woche ' + STATE.currentWeek + ' von 4';
+}
+
+function buildWeekDays(week, trainingDays) {
+  const level = STATE.user.level;
+  const dayTemplates = PLANS[level][week];
+  // Distribute training days across 7 days
+  const result = [];
+  const patterns = {
+    2: [1,0,0,1,0,0,0],
+    3: [1,0,1,0,1,0,0],
+    4: [1,0,1,1,0,1,0],
+    5: [1,1,0,1,1,0,1],
+    6: [1,1,1,0,1,1,1],
+  };
+  const pattern = patterns[trainingDays] || patterns[3];
+  let templateIdx = 0;
+  for (let i = 0; i < 7; i++) {
+    if (pattern[i] && templateIdx < dayTemplates.length) {
+      result.push({ ...dayTemplates[templateIdx], rest: false, dayIdx: i });
+      templateIdx++;
+    } else {
+      result.push({ rest: true, label: 'Pause', dayIdx: i });
+    }
+  }
+  return result;
+}
+
+function isWorkoutDone(week, dayIdx) {
+  return STATE.completedWorkouts.some(w => w.week === week && w.dayIndex === dayIdx);
+}
+
+function setDay(i) {
+  const days = buildWeekDays(STATE.currentWeek, STATE.user.trainingDays);
+  if (days[i] && !days[i].rest) {
+    STATE.currentDayIndex = i;
+    saveState();
+    renderWeekDays();
+    renderWorkout();
+  }
+}
+
+function changeWeek(delta) {
+  const next = STATE.currentWeek + delta;
+  if (next < 1 || next > 4) return;
+  STATE.currentWeek = next;
+  // Pick first training day of new week
+  const days = buildWeekDays(next, STATE.user.trainingDays);
+  const first = days.findIndex(d => !d.rest);
+  STATE.currentDayIndex = first >= 0 ? first : 0;
+  saveState();
+  renderApp();
+}
+
+function renderWorkout() {
+  const days = buildWeekDays(STATE.currentWeek, STATE.user.trainingDays);
+  const day = days[STATE.currentDayIndex];
+  const content = document.getElementById('workout-content');
+
+  if (!day || day.rest) {
+    content.innerHTML = `<div class="rest-view"><div class="rest-emoji">😴</div><h3>Ruhetag</h3><p>Heute ist aktive Erholung angesagt. Spazieren gehen, dehnen oder einfach entspannen. Der Körper wächst in der Pause.</p></div>`;
+    return;
+  }
+
+  const done = isWorkoutDone(STATE.currentWeek, STATE.currentDayIndex);
+  const exDone = day.exercises.filter(ex => isExDone(ex.name)).length;
+  const allExDone = exDone === day.exercises.length;
+
+  content.innerHTML = `
+    <div class="ex-header">
+      <h3>${day.label} – Tag ${STATE.currentDayIndex + 1}</h3>
+      <p style="color:var(--text2);font-size:13px;">${exDone} / ${day.exercises.length} Übungen erledigt</p>
+    </div>
+    <div class="ex-list" id="ex-list">
+      ${day.exercises.map(ex => exCard(ex, day)).join('')}
+    </div>
+    <div class="tip-card">
+      <div class="tip-tag">💡 Trainer-Tipp</div>
+      <div class="tip-text">${day.tip}</div>
+    </div>
+    <div class="done-banner" id="done-banner" style="${done ? 'display:block' : 'display:none'}">
+      <h4>Einheit abgeschlossen! 🎉</h4>
+      <p>Super Arbeit. Erhol dich gut für die nächste Einheit.</p>
+    </div>
+    ${!done ? `<button class="complete-btn" id="complete-btn" ${allExDone ? '' : 'disabled'} onclick="completeWorkout()">
+      Einheit abschließen ✓
+    </button>` : `<button class="complete-btn" style="background:var(--bg3);color:var(--text2);margin-top:1rem;" onclick="uncompleteWorkout()">
+      Einheit als offen markieren
+    </button>`}
+    <div style="height:1.5rem"></div>
+  `;
+}
+
+function exCard(ex, day) {
+  const done = isExDone(ex.name);
+  return `<div class="ex-card ${done ? 'completed' : ''}" onclick="toggleEx('${escKey(ex.name)}')">
+    <div class="ex-icon ${ex.type}">${typeEmoji(ex.type)}</div>
+    <div class="ex-body">
+      <div class="ex-name">${ex.name}</div>
+      <div class="ex-detail">${ex.detail}</div>
+    </div>
+    <div style="text-align:right">
+      <div class="ex-sets">${ex.sets}</div>
+      <div style="font-size:20px;margin-top:4px">${done ? '✅' : '○'}</div>
+    </div>
+  </div>`;
+}
+
+function typeEmoji(t) {
+  return { push: '💪', pull: '🙌', legs: '🦵', core: '⚡' }[t] || '🏋️';
+}
+
+function escKey(s) { return s.replace(/'/g, "\\'"); }
+
+function exKey(name) {
+  return `${STATE.currentWeek}-${STATE.currentDayIndex}-${name}`;
+}
+function isExDone(name) {
+  return !!STATE.completedExercises[exKey(name)];
+}
+function toggleEx(name) {
+  const k = exKey(name);
+  if (STATE.completedExercises[k]) delete STATE.completedExercises[k];
+  else STATE.completedExercises[k] = true;
+  saveState();
+  renderWorkout();
+}
+
+function completeWorkout() {
+  const days = buildWeekDays(STATE.currentWeek, STATE.user.trainingDays);
+  const day = days[STATE.currentDayIndex];
+  if (!isWorkoutDone(STATE.currentWeek, STATE.currentDayIndex)) {
+    STATE.completedWorkouts.push({
+      date: dateStr(new Date()),
+      week: STATE.currentWeek,
+      dayIndex: STATE.currentDayIndex,
+      label: day.label,
+    });
+    saveState();
+  }
+  renderStats();
+  renderWeekDays();
+  renderWorkout();
+}
+
+function uncompleteWorkout() {
+  STATE.completedWorkouts = STATE.completedWorkouts.filter(
+    w => !(w.week === STATE.currentWeek && w.dayIndex === STATE.currentDayIndex)
+  );
+  saveState();
+  renderStats();
+  renderWeekDays();
+  renderWorkout();
+}
+
+// ═══════════════════════════════════════════
+// HISTORY TAB
+// ═══════════════════════════════════════════
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  if (STATE.completedWorkouts.length === 0) {
+    list.innerHTML = `<div class="empty-state">Noch keine abgeschlossenen Einheiten.<br>Starte dein erstes Workout! 💪</div>`;
+    return;
+  }
+  const sorted = [...STATE.completedWorkouts].reverse();
+  list.innerHTML = sorted.map(w => `
+    <div class="history-item">
+      <div class="history-dot"></div>
+      <div class="history-info">
+        <div class="history-title">Woche ${w.week} · ${w.label}</div>
+        <div class="history-date">${formatDate(w.date)}</div>
+      </div>
+      <div class="history-badge">✓ Done</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════
+function showTab(tab) {
+  document.getElementById('tab-workout').style.display = tab === 'workout' ? 'block' : 'none';
+  document.getElementById('tab-history').style.display = tab === 'history' ? 'block' : 'none';
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && tab === 'workout') || (i === 1 && tab === 'history'));
+  });
+  document.querySelectorAll('.nav-item').forEach((n, i) => {
+    n.classList.toggle('active', (i === 0 && tab === 'workout') || (i === 1 && tab === 'history'));
+  });
+  if (tab === 'history') renderHistory();
+}
+
+// ═══════════════════════════════════════════
+// SETTINGS MODAL
+// ═══════════════════════════════════════════
+function openSettings() {
+  const u = STATE.user;
+  document.getElementById('settings-name-display').textContent = u.name;
+  document.getElementById('settings-level-display').textContent = LEVEL_LABELS[u.level] || u.level;
+  document.getElementById('settings-days-val').textContent = u.trainingDays + ' Tage';
+  const row = document.getElementById('settings-days-row');
+  row.innerHTML = [2,3,4,5,6].map(d =>
+    `<button class="day-btn ${d === u.trainingDays ? 'selected' : ''}" data-days="${d}" onclick="setTrainingDays(${d})">${d}</button>`
+  ).join('');
+  document.getElementById('settings-modal').classList.add('open');
+}
+function closeSettings() { document.getElementById('settings-modal').classList.remove('open'); }
+function closeSettingsIfOutside(e) { if (e.target.id === 'settings-modal') closeSettings(); }
+
+function setTrainingDays(d) {
+  STATE.user.trainingDays = d;
+  saveState();
+  document.querySelectorAll('#settings-days-row .day-btn').forEach(b => {
+    b.classList.toggle('selected', parseInt(b.dataset.days) === d);
+  });
+  document.getElementById('settings-days-val').textContent = d + ' Tage';
+  renderWeekDays();
+  renderWorkout();
+}
+
+function editName() {
+  const n = prompt('Neuer Name:', STATE.user.name);
+  if (n && n.trim()) {
+    STATE.user.name = n.trim();
+    saveState();
+    document.getElementById('settings-name-display').textContent = STATE.user.name;
+    renderApp();
+  }
+}
+
+function resetApp() {
+  if (!confirm('Alle Daten wirklich löschen? Das kann nicht rückgängig gemacht werden.')) return;
+  localStorage.removeItem('cali_state');
+  location.reload();
+}
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+function dateStr(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function formatDate(s) {
+  const d = new Date(s);
+  return d.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+// ═══════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════
+loadState();
+if (STATE.user) showApp();
+</script>
+</body>
+</html>
