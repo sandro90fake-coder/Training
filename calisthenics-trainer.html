@@ -33,11 +33,11 @@
   body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
 
   /* ── SCREENS ── */
-  .screen { display: none; min-height: 100vh; }
-  .screen.active { display: block; }
+  .screen { display: none !important; min-height: 100vh; }
+  .screen.active { display: block !important; }
 
   /* ── SETUP SCREEN ── */
-  #setup-screen { display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
+  #setup-screen.active { display: flex !important; align-items: center; justify-content: center; padding: 2rem 1rem; }
   .setup-card { background: var(--bg2); border: 1px solid var(--border2); border-radius: 20px; padding: 2.5rem 2rem; max-width: 440px; width: 100%; }
   .setup-logo { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); margin-bottom: 1.5rem; }
   .setup-card h1 { font-size: 28px; font-weight: 600; margin-bottom: 0.4rem; line-height: 1.2; }
@@ -560,10 +560,19 @@ let STATE = {
   completedExercises: {}, // key: "w-d-eName" → true
 };
 
-function saveState() { localStorage.setItem('cali_state', JSON.stringify(STATE)); }
+function saveState() {
+  try { localStorage.setItem('cali_state', JSON.stringify(STATE)); } catch(e) {}
+}
 function loadState() {
-  const raw = localStorage.getItem('cali_state');
-  if (raw) { try { STATE = JSON.parse(raw); } catch(e) {} }
+  try {
+    const raw = localStorage.getItem('cali_state');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') STATE = parsed;
+    }
+  } catch(e) {
+    console.warn('localStorage nicht verfügbar:', e);
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -909,8 +918,16 @@ function formatDate(s) {
 // ═══════════════════════════════════════════
 // BOOT
 // ═══════════════════════════════════════════
-loadState();
-if (STATE.user) showApp();
+function boot() {
+  loadState();
+  if (STATE.user && STATE.user.name && STATE.user.level && STATE.user.trainingDays) {
+    showApp();
+  } else {
+    document.getElementById('setup-screen').classList.add('active');
+    document.getElementById('app-screen').classList.remove('active');
+  }
+}
+boot();
 </script>
 </body>
 </html>
