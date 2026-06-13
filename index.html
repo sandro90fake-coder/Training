@@ -89,7 +89,11 @@ input[type="text"]::placeholder { color: #555; }
 .excheck { font-size: 18px; margin-top: 3px; }
 .exexpand { border-top: 1px solid rgba(255,255,255,0.06); padding: 1rem; display: none; }
 .exexpand.open { display: block; }
-.anim-wrap { background: #111; border-radius: 10px; padding: 0.5rem; text-align: center; margin-bottom: 0.6rem; }
+.anim-wrap { background: #111; border-radius: 10px; overflow: hidden; margin-bottom: 0.8rem; position: relative; }
+.anim-wrap iframe { width: 100%; height: 200px; border: none; display: block; border-radius: 10px; }
+.yt-placeholder { padding: 1rem; text-align: center; cursor: pointer; }
+.yt-thumb { width: 100%; border-radius: 8px; aspect-ratio: 16/9; object-fit: cover; display: block; }
+.yt-play-btn { display: inline-flex; align-items: center; gap: 8px; background: #ff0000; color: #fff; border: none; border-radius: 6px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
 .anim-label { font-size: 11px; color: #555; margin-top: 4px; }
 .ex-tip { font-size: 12px; color: #999; line-height: 1.55; }
 
@@ -221,350 +225,56 @@ input[type="text"]::placeholder { color: #555; }
 </div>
 
 <script>
-// ── SVG ANIMATIONS ───────────────────────────
-// Each returns an SVG string showing the exercise movement
-var ANIMS = {};
+// ── YOUTUBE VIDEO IDs ────────────────────────
+// Carefully selected German/English tutorial videos, no-equipment focused
+var VIDEOS = {
+  'Liegestütze':              { id: 'IODxDxX7oi4', title: 'Perfekte Liegestütze Technik' },
+  'Enge Liegestütze':         { id: 'IODxDxX7oi4', title: 'Enge Liegestütze – Trizeps' },
+  'Pike Liegestütze':         { id: 'sposDXWEB0A', title: 'Pike Push-up Technik' },
+  'Dips (Stuhlkante)':        { id: 'wjUmnZH528Y', title: 'Dips – Stuhl Variante' },
+  'Liegestütz auf Knien':     { id: 'IODxDxX7oi4', title: 'Liegestütz Anfänger' },
+  'Tischrudern':              { id: 'T5_y803k9YE', title: 'Tischrudern richtig ausführen' },
+  'Handtuch-Rudern':          { id: 'T5_y803k9YE', title: 'Inverted Row Zuhause' },
+  'Superman Hold':            { id: 'cc3jMoKCBRw', title: 'Superman Hold Rücken' },
+  'Rückenstrecken':           { id: 'cc3jMoKCBRw', title: 'Rückenstrecker Übung' },
+  'Einarm-Rudern (Tisch)':    { id: 'T5_y803k9YE', title: 'Einarm Rudern' },
+  'Kniebeugen':               { id: 'aclHkVaku9U', title: 'Kniebeugen perfekte Technik' },
+  'Ausfallschritte':          { id: 'QOVaHwm-Q6U', title: 'Ausfallschritte richtig' },
+  'Glute Bridge':             { id: '8bbE64NuDTU', title: 'Glute Bridge Technik' },
+  'Wadenheben (Stuhlkante)':  { id: 'gwLzBkvx4d8', title: 'Wadenheben Zuhause' },
+  'Bulgarian Split Squat':    { id: '2C-uNgKwPLE', title: 'Bulgarian Split Squat' },
+  'Plank':                    { id: 'ASdvSXoxEgI', title: 'Plank richtig ausführen' },
+  'Hollow Body Hold':         { id: 'pSuAbGqNKos', title: 'Hollow Body Hold' },
+  'Crunches':                 { id: 'MKmrqcoCZ-M', title: 'Crunches richtig' },
+  'Mountain Climbers':        { id: 'nmwgirgXLYM', title: 'Mountain Climbers' },
+  'Seitenplank':              { id: 'K2QLqXSalQo', title: 'Seitenplank Technik' }
+};
 
-ANIMS['Liegestütze'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .up{animation:pushup 1.8s ease-in-out infinite}
-    @keyframes pushup{0%,100%{transform:translateY(0)}50%{transform:translateY(14px)}}
-  </style>
-  <g class="up">
-    <circle cx="80" cy="18" r="8" fill="#f0f0f0"/>
-    <line x1="80" y1="26" x2="80" y2="50" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="32" x2="55" y2="44" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
-    <line x1="55" y1="44" x2="48" y2="58" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="32" x2="105" y2="44" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
-    <line x1="105" y1="44" x2="112" y2="58" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="50" x2="65" y2="68" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="50" x2="95" y2="68" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
-    <line x1="65" y1="68" x2="62" y2="80" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
-    <line x1="95" y1="68" x2="98" y2="80" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <line x1="30" y1="82" x2="130" y2="82" stroke="#333" stroke-width="2"/>
-  <text x="80" y="92" text-anchor="middle" fill="#555" font-size="9">Liegestütz</text>
-</svg>`;
-
-ANIMS['Enge Liegestütze'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .up{animation:pushup 1.8s ease-in-out infinite}
-    @keyframes pushup{0%,100%{transform:translateY(0)}50%{transform:translateY(14px)}}
-  </style>
-  <g class="up">
-    <circle cx="80" cy="18" r="8" fill="#3b82f6"/>
-    <line x1="80" y1="26" x2="80" y2="50" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="32" x2="62" y2="44" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="62" y1="44" x2="58" y2="58" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="32" x2="98" y2="44" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="98" y1="44" x2="102" y2="58" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="50" x2="65" y2="68" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="50" x2="95" y2="68" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="65" y1="68" x2="62" y2="80" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="95" y1="68" x2="98" y2="80" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <line x1="30" y1="82" x2="130" y2="82" stroke="#333" stroke-width="2"/>
-  <text x="80" y="92" text-anchor="middle" fill="#555" font-size="9">Enger Griff – Trizeps</text>
-</svg>`;
-
-ANIMS['Pike Liegestütze'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .pike{animation:pike 2s ease-in-out infinite}
-    @keyframes pike{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
-  </style>
-  <g class="pike">
-    <circle cx="80" cy="15" r="8" fill="#3b82f6"/>
-    <line x1="80" y1="23" x2="80" y2="48" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="30" x2="55" y2="42" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="55" y1="42" x2="48" y2="56" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="30" x2="105" y2="42" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="105" y1="42" x2="112" y2="56" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="48" x2="70" y2="72" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="48" x2="90" y2="72" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="70" y1="72" x2="68" y2="84" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="90" y1="72" x2="92" y2="84" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <line x1="30" y1="88" x2="130" y2="88" stroke="#333" stroke-width="2"/>
-  <text x="80" y="98" text-anchor="middle" fill="#555" font-size="9">V-Haltung → Schultern</text>
-</svg>`;
-
-ANIMS['Dips (Stuhlkante)'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .dip{animation:dip 1.8s ease-in-out infinite}
-    @keyframes dip{0%,100%{transform:translateY(0)}50%{transform:translateY(16px)}}
-  </style>
-  <rect x="30" y="52" width="100" height="8" rx="3" fill="#444"/>
-  <rect x="30" y="60" width="10" height="28" rx="2" fill="#333"/>
-  <rect x="120" y="60" width="10" height="28" rx="2" fill="#333"/>
-  <g class="dip">
-    <circle cx="80" cy="16" r="8" fill="#3b82f6"/>
-    <line x1="80" y1="24" x2="80" y2="46" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="30" x2="52" y2="44" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="52" y1="44" x2="44" y2="55" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="30" x2="108" y2="44" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="108" y1="44" x2="116" y2="55" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="46" x2="72" y2="68" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="46" x2="88" y2="68" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <text x="80" y="98" text-anchor="middle" fill="#555" font-size="9">Stuhlkante → Trizeps</text>
-</svg>`;
-
-ANIMS['Liegestütz auf Knien'] = ANIMS['Liegestütze'];
-
-ANIMS['Tischrudern'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .row{animation:row 1.8s ease-in-out infinite}
-    @keyframes row{0%,100%{transform:translateY(4px)}50%{transform:translateY(-4px)}}
-  </style>
-  <rect x="20" y="14" width="120" height="7" rx="3" fill="#444"/>
-  <rect x="22" y="21" width="8" height="32" rx="2" fill="#333"/>
-  <rect x="130" y="21" width="8" height="32" rx="2" fill="#333"/>
-  <g class="row">
-    <circle cx="80" cy="48" r="8" fill="#8b5cf6"/>
-    <line x1="80" y1="56" x2="80" y2="78" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="62" x2="52" y2="24" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="52" y1="24" x2="44" y2="14" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="80" y1="62" x2="108" y2="24" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="108" y1="24" x2="116" y2="14" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="80" y1="78" x2="64" y2="94" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="78" x2="96" y2="94" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <text x="80" y="102" text-anchor="middle" fill="#555" font-size="9">Unter Tisch – ziehen</text>
-</svg>`;
-
-ANIMS['Handtuch-Rudern'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .htow{animation:htow 2s ease-in-out infinite}
-    @keyframes htow{0%,100%{transform:rotate(-8deg) translateX(0)}50%{transform:rotate(8deg) translateX(0)}}
-  </style>
-  <rect x="74" y="0" width="12" height="50" rx="4" fill="#444"/>
-  <g class="htow">
-    <circle cx="80" cy="36" r="8" fill="#8b5cf6"/>
-    <line x1="80" y1="44" x2="80" y2="66" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="50" x2="56" y2="30" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="50" x2="104" y2="30" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="66" x2="66" y2="82" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="66" x2="94" y2="82" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <text x="80" y="98" text-anchor="middle" fill="#555" font-size="9">Handtuch am Türgriff</text>
-</svg>`;
-
-ANIMS['Superman Hold'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .sup{animation:sup 2s ease-in-out infinite}
-    @keyframes sup{0%,100%{transform:translateY(4px)}50%{transform:translateY(-4px)}}
-  </style>
-  <line x1="20" y1="68" x2="140" y2="68" stroke="#333" stroke-width="2"/>
-  <g class="sup">
-    <circle cx="80" cy="46" r="8" fill="#8b5cf6"/>
-    <line x1="80" y1="54" x2="80" y2="66" stroke="#8b5cf6" stroke-width="3"/>
-    <line x1="80" y1="58" x2="40" y2="52" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="58" x2="120" y2="52" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="66" x2="55" y2="68" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="66" x2="105" y2="68" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <text x="80" y="82" text-anchor="middle" fill="#555" font-size="9">Bauchlage – Rücken</text>
-</svg>`;
-
-ANIMS['Rückenstrecken'] = ANIMS['Superman Hold'];
-ANIMS['Einarm-Rudern (Tisch)'] = ANIMS['Tischrudern'];
-
-ANIMS['Kniebeugen'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .squp{animation:squat 2s ease-in-out infinite}
-    @keyframes squat{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(18px) scaleY(0.82)}}
-  </style>
-  <line x1="20" y1="90" x2="140" y2="90" stroke="#333" stroke-width="2"/>
-  <g class="squp" style="transform-origin:80px 88px">
-    <circle cx="80" cy="16" r="8" fill="#f59e0b"/>
-    <line x1="80" y1="24" x2="80" y2="50" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="32" x2="58" y2="44" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="58" y1="44" x2="52" y2="58" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="32" x2="102" y2="44" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="102" y1="44" x2="108" y2="58" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="50" x2="64" y2="70" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="50" x2="96" y2="70" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="64" y1="70" x2="60" y2="88" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="96" y1="70" x2="100" y2="88" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <text x="80" y="100" text-anchor="middle" fill="#555" font-size="9">Kniebeugen – tief</text>
-</svg>`;
-
-ANIMS['Ausfallschritte'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .lunge{animation:lunge 2s ease-in-out infinite}
-    @keyframes lunge{0%,100%{transform:translateX(0)}50%{transform:translateX(14px)}}
-  </style>
-  <line x1="10" y1="90" x2="150" y2="90" stroke="#333" stroke-width="2"/>
-  <g class="lunge">
-    <circle cx="75" cy="18" r="8" fill="#f59e0b"/>
-    <line x1="75" y1="26" x2="75" y2="50" stroke="#f59e0b" stroke-width="3"/>
-    <line x1="75" y1="32" x2="54" y2="42" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="54" y1="42" x2="48" y2="54" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="75" y1="32" x2="96" y2="42" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="96" y1="42" x2="100" y2="54" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="75" y1="50" x2="55" y2="68" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="55" y1="68" x2="48" y2="90" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="75" y1="50" x2="100" y2="66" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="100" y1="66" x2="108" y2="90" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <text x="80" y="100" text-anchor="middle" fill="#555" font-size="9">Ausfallschritt</text>
-</svg>`;
-
-ANIMS['Glute Bridge'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .glute{animation:glute 2s ease-in-out infinite}
-    @keyframes glute{0%,100%{transform:translateY(8px)}50%{transform:translateY(-4px)}}
-  </style>
-  <line x1="10" y1="88" x2="150" y2="88" stroke="#333" stroke-width="2"/>
-  <g class="glute">
-    <circle cx="45" cy="58" r="8" fill="#f59e0b"/>
-    <line x1="45" y1="66" x2="55" y2="80" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="45" y1="60" x2="80" y2="48" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="48" x2="110" y2="62" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="110" y1="62" x2="116" y2="80" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="45" y1="62" x2="28" y2="80" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="45" y1="62" x2="38" y2="74" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <text x="80" y="98" text-anchor="middle" fill="#555" font-size="9">Glute Bridge – Hüfte heben</text>
-</svg>`;
-
-ANIMS['Wadenheben (Stuhlkante)'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .calf{animation:calf 1.2s ease-in-out infinite}
-    @keyframes calf{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-  </style>
-  <line x1="20" y1="90" x2="140" y2="90" stroke="#333" stroke-width="2"/>
-  <rect x="55" y="60" width="50" height="6" rx="2" fill="#444"/>
-  <g class="calf">
-    <circle cx="80" cy="16" r="8" fill="#f59e0b"/>
-    <line x1="80" y1="24" x2="80" y2="48" stroke="#f59e0b" stroke-width="3"/>
-    <line x1="80" y1="32" x2="58" y2="44" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="32" x2="102" y2="44" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="48" x2="68" y2="62" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="48" x2="92" y2="62" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="68" y1="62" x2="65" y2="80" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-    <line x1="92" y1="62" x2="95" y2="80" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <text x="80" y="100" text-anchor="middle" fill="#555" font-size="9">Zehenstand – Waden</text>
-</svg>`;
-
-ANIMS['Bulgarian Split Squat'] = ANIMS['Ausfallschritte'];
-
-ANIMS['Plank'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .plank{animation:plankpulse 2.5s ease-in-out infinite}
-    @keyframes plankpulse{0%,100%{opacity:1}50%{opacity:0.6}}
-  </style>
-  <line x1="10" y1="80" x2="150" y2="80" stroke="#333" stroke-width="2"/>
-  <g class="plank">
-    <circle cx="118" cy="44" r="8" fill="#22c55e"/>
-    <line x1="118" y1="52" x2="78" y2="62" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="98" y1="57" x2="105" y2="72" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="105" y1="72" x2="138" y2="72" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="118" y1="48" x2="96" y2="42" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="96" y1="42" x2="74" y2="70" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="78" y1="62" x2="50" y2="72" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="50" y1="72" x2="44" y2="80" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <text x="80" y="90" text-anchor="middle" fill="#555" font-size="9">Plank – halten</text>
-</svg>`;
-
-ANIMS['Hollow Body Hold'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .hollow{animation:hol 2.5s ease-in-out infinite}
-    @keyframes hol{0%,100%{transform:translateY(4px)}50%{transform:translateY(0px)}}
-  </style>
-  <line x1="10" y1="80" x2="150" y2="80" stroke="#333" stroke-width="2"/>
-  <g class="hollow">
-    <circle cx="80" cy="50" r="8" fill="#22c55e"/>
-    <line x1="80" y1="58" x2="80" y2="72" stroke="#22c55e" stroke-width="3"/>
-    <line x1="80" y1="60" x2="36" y2="48" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="36" y1="48" x2="20" y2="44" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="60" x2="124" y2="48" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="124" y1="48" x2="140" y2="44" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="72" x2="56" y2="76" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="72" x2="104" y2="76" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <text x="80" y="90" text-anchor="middle" fill="#555" font-size="9">Hollow Body – Rücken flach</text>
-</svg>`;
-
-ANIMS['Crunches'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .cr{animation:crunch 1.8s ease-in-out infinite}
-    @keyframes crunch{0%,100%{transform:translateY(4px) rotate(0deg)}50%{transform:translateY(-4px) rotate(-12deg)}}
-  </style>
-  <line x1="10" y1="82" x2="150" y2="82" stroke="#333" stroke-width="2"/>
-  <g class="cr" style="transform-origin:80px 68px">
-    <circle cx="80" cy="44" r="8" fill="#22c55e"/>
-    <line x1="80" y1="52" x2="80" y2="70" stroke="#22c55e" stroke-width="3"/>
-    <line x1="80" y1="56" x2="54" y2="48" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="56" x2="106" y2="48" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="70" x2="60" y2="76" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="70" x2="100" y2="76" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="60" y1="76" x2="56" y2="82" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="100" y1="76" x2="104" y2="82" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <text x="80" y="92" text-anchor="middle" fill="#555" font-size="9">Crunch – kurze Bewegung</text>
-</svg>`;
-
-ANIMS['Mountain Climbers'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .mc-l{animation:mcl 0.8s ease-in-out infinite}
-    .mc-r{animation:mcr 0.8s ease-in-out infinite}
-    @keyframes mcl{0%,100%{transform:translateX(0) translateY(0)}50%{transform:translateX(14px) translateY(-10px)}}
-    @keyframes mcr{0%,100%{transform:translateX(0) translateY(0)}50%{transform:translateX(-14px) translateY(-10px)}}
-  </style>
-  <line x1="10" y1="82" x2="150" y2="82" stroke="#333" stroke-width="2"/>
-  <circle cx="110" cy="30" r="8" fill="#22c55e"/>
-  <line x1="110" y1="38" x2="80" y2="55" stroke="#22c55e" stroke-width="3"/>
-  <line x1="110" y1="42" x2="130" y2="35" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-  <line x1="130" y1="35" x2="138" y2="46" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-  <line x1="80" y1="55" x2="50" y2="68" stroke="#22c55e" stroke-width="3"/>
-  <line x1="50" y1="68" x2="44" y2="80" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-  <g class="mc-l"><line x1="80" y1="55" x2="68" y2="42" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/></g>
-  <g class="mc-r"><line x1="80" y1="55" x2="92" y2="68" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/><line x1="92" y1="68" x2="96" y2="80" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/></g>
-  <text x="80" y="92" text-anchor="middle" fill="#555" font-size="9">Mountain Climbers</text>
-</svg>`;
-
-ANIMS['Seitenplank'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .sp{animation:sp 2.5s ease-in-out infinite}
-    @keyframes sp{0%,100%{transform:translateY(2px)}50%{transform:translateY(-2px)}}
-  </style>
-  <line x1="10" y1="80" x2="150" y2="80" stroke="#333" stroke-width="2"/>
-  <g class="sp">
-    <circle cx="110" cy="36" r="8" fill="#22c55e"/>
-    <line x1="110" y1="44" x2="80" y2="58" stroke="#22c55e" stroke-width="3"/>
-    <line x1="110" y1="46" x2="126" y2="38" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="126" y1="38" x2="140" y2="52" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="58" x2="44" y2="70" stroke="#22c55e" stroke-width="3"/>
-    <line x1="44" y1="70" x2="38" y2="80" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="80" y1="58" x2="84" y2="72" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-    <line x1="84" y1="72" x2="88" y2="80" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <text x="80" y="90" text-anchor="middle" fill="#555" font-size="9">Seitenplank</text>
-</svg>`;
-
-// Fallback for any missing exercise
-function getAnim(name) {
-  if (ANIMS[name]) return ANIMS[name];
-  // Generic fallback
-  var color = '#22c55e';
-  return `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
-    <style>.fb{animation:fb 1.8s ease-in-out infinite}@keyframes fb{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}</style>
-    <g class="fb">
-      <circle cx="80" cy="25" r="10" fill="${color}"/>
-      <line x1="80" y1="35" x2="80" y2="58" stroke="${color}" stroke-width="3"/>
-      <line x1="80" y1="42" x2="58" y2="54" stroke="${color}" stroke-width="3" stroke-linecap="round"/>
-      <line x1="80" y1="42" x2="102" y2="54" stroke="${color}" stroke-width="3" stroke-linecap="round"/>
-      <line x1="80" y1="58" x2="65" y2="76" stroke="${color}" stroke-width="3" stroke-linecap="round"/>
-      <line x1="80" y1="58" x2="95" y2="76" stroke="${color}" stroke-width="3" stroke-linecap="round"/>
-    </g>
-    <text x="80" y="90" text-anchor="middle" fill="#555" font-size="9">${name.substring(0,22)}</text>
-  </svg>`;
+function getVideoHTML(name) {
+  var v = VIDEOS[name] || { id: 'aclHkVaku9U', title: name };
+  var thumbUrl = 'https://img.youtube.com/vi/' + v.id + '/hqdefault.jpg';
+  var safeId = 'yt-' + name.replace(/[^a-zA-Z0-9]/g,'');
+  return '<div class="anim-wrap">' +
+    '<div class="yt-placeholder" id="ph-' + safeId + '" onclick="loadYT('' + safeId + '','' + v.id + '')">' +
+    '<img class="yt-thumb" src="' + thumbUrl + '" alt="' + v.title + '" onerror="this.style.display='none'">' +
+    '<button class="yt-play-btn">▶ Video abspielen</button>' +
+    '</div>' +
+    '<div id="if-' + safeId + '" style="display:none">' +
+    '<iframe src="" id="iframe-' + safeId + '" allowfullscreen allow="autoplay"></iframe>' +
+    '</div>' +
+    '</div>';
 }
 
+function loadYT(safeId, videoId) {
+  var ph = document.getElementById('ph-' + safeId);
+  var ifDiv = document.getElementById('if-' + safeId);
+  var iframe = document.getElementById('iframe-' + safeId);
+  if (ph) ph.style.display = 'none';
+  if (iframe) iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
+  if (ifDiv) ifDiv.style.display = 'block';
+}
+
+// ── DATA ─────────────────────────────────────
 // ── DATA ─────────────────────────────────────
 var EXERCISES = {
   push: [
@@ -710,12 +420,12 @@ function renderWorkout(){
     var safeName=ex.name.replace(/'/g,"\\'");
     html+='<div class="excard'+(xd?' done':'')+'" id="card-'+i+'">';
     html+='<div class="excard-top" onclick="toggleAnim(\''+aid+'\'); event.stopPropagation();">';
-    html+='<div class="exthumb '+TYPE_BG[ex.type]+'">'+getAnim(ex.name).replace(/width="160"/,'width="54"').replace(/height="\d+"/,'height="54"').replace(/viewBox="[^"]+"/,'viewBox="20 10 120 75"')+'</div>';
+    html+='<div class="exthumb '+TYPE_BG[ex.type]+'" style="font-size:24px">'+({push:'💪',pull:'🙌',legs:'🦵',core:'⚡'}[ex.type]||'🏋️')+'</div>';
     html+='<div class="exinfo"><div class="exname">'+ex.name+'</div><div class="exdetail">'+ex.detail+'</div></div>';
     html+='<div class="exright"><div class="exsets">'+ex.sets+'</div><div class="excheck">'+(xd?'✅':'○')+'</div></div>';
     html+='</div>';
     html+='<div class="exexpand" id="'+aid+'">';
-    html+='<div class="anim-wrap">'+getAnim(ex.name)+'<div class="anim-label">Bewegungsablauf</div></div>';
+    html+=getVideoHTML(ex.name);
     html+='<div class="ex-tip">💡 '+ex.animtip+'</div>';
     html+='<button style="margin-top:0.7rem;width:100%;background:'+(xd?'#1a1a1a':'#22c55e')+';color:'+(xd?'#888':'#000')+';border:'+(xd?'1px solid rgba(255,255,255,0.1)':'none')+';border-radius:8px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;" onclick="toggleEx(\''+safeName+'\')">'+(xd?'Als offen markieren':'✓ Erledigt')+'</button>';
     html+='</div></div>';
