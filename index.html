@@ -6,106 +6,59 @@
 <title>Calisthenics Trainer</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: #0f0f0f;
-  color: #f0f0f0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-  min-height: 100vh;
-  font-size: 16px;
-}
+body { background: #0f0f0f; color: #f0f0f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; min-height: 100vh; font-size: 16px; }
 
-/* SCREENS */
 #setup-screen, #app-screen { display: none; }
 #setup-screen.show { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1.5rem; }
 #app-screen.show { display: block; padding-bottom: 80px; }
 
-/* SETUP */
 .card { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 2rem 1.5rem; width: 100%; max-width: 420px; }
 .logo { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #22c55e; margin-bottom: 1.2rem; }
 .card h1 { font-size: 26px; font-weight: 600; margin-bottom: 0.4rem; }
 .card > p { color: #a0a0a0; font-size: 14px; margin-bottom: 1.8rem; line-height: 1.6; }
 .flabel { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #888; margin-bottom: 6px; display: block; }
 .fgroup { margin-bottom: 1.1rem; }
-input[type="text"] {
-  width: 100%; background: #242424; border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px; padding: 11px 13px; color: #f0f0f0; font-size: 15px; outline: none;
-}
+input[type="text"] { width: 100%; background: #242424; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 11px 13px; color: #f0f0f0; font-size: 15px; outline: none; }
 input[type="text"]:focus { border-color: #22c55e; }
 input[type="text"]::placeholder { color: #555; }
 .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-.selfbtn {
-  background: #242424; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
-  padding: 11px 6px; text-align: center; cursor: pointer; color: #888; font-size: 13px;
-  transition: all 0.15s;
-}
-.selfbtn:hover { border-color: rgba(255,255,255,0.25); color: #f0f0f0; }
+.selfbtn { background: #242424; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 11px 6px; text-align: center; cursor: pointer; color: #888; font-size: 13px; transition: all 0.15s; }
 .selfbtn.sel { border-color: #22c55e; background: rgba(34,197,94,0.12); color: #22c55e; }
 .selfbtn .ic { font-size: 20px; display: block; margin-bottom: 4px; }
 .dayrow { display: flex; gap: 6px; }
-.daybtn {
-  flex: 1; background: #242424; border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px; padding: 10px 4px; text-align: center; cursor: pointer;
-  color: #888; font-size: 14px; transition: all 0.15s;
-}
-.daybtn:hover { color: #f0f0f0; border-color: rgba(255,255,255,0.25); }
+.daybtn { flex: 1; background: #242424; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 4px; text-align: center; cursor: pointer; color: #888; font-size: 14px; }
 .daybtn.sel { border-color: #22c55e; background: rgba(34,197,94,0.12); color: #22c55e; font-weight: 600; }
-.btnprimary {
-  width: 100%; background: #22c55e; color: #000; border: none; border-radius: 8px;
-  padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 1.4rem;
-}
+.btnprimary { width: 100%; background: #22c55e; color: #000; border: none; border-radius: 8px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 1.4rem; }
 .btnprimary:disabled { opacity: 0.35; cursor: not-allowed; }
 
-/* TOPBAR */
-.topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 1rem 1rem 0.7rem; border-bottom: 1px solid rgba(255,255,255,0.08);
-  background: #0f0f0f; position: sticky; top: 0; z-index: 10;
-}
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1rem 0.7rem; border-bottom: 1px solid rgba(255,255,255,0.08); background: #0f0f0f; position: sticky; top: 0; z-index: 10; }
 .topbar h2 { font-size: 17px; font-weight: 600; }
 .topbar p { font-size: 12px; color: #888; margin-top: 1px; }
-.userpill {
-  background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 20px; padding: 6px 12px; font-size: 13px; color: #888; cursor: pointer;
-}
+.userpill { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 6px 12px; font-size: 13px; color: #888; cursor: pointer; }
 
-/* TABS */
 .tabrow { display: flex; gap: 4px; padding: 0.9rem 1rem 0; overflow-x: auto; }
 .tabrow::-webkit-scrollbar { display: none; }
-.tabitem {
-  padding: 6px 16px; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
-  font-size: 13px; cursor: pointer; color: #888; background: transparent; white-space: nowrap;
-}
+.tabitem { padding: 6px 16px; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; font-size: 13px; cursor: pointer; color: #888; background: transparent; white-space: nowrap; }
 .tabitem.active { background: #22c55e; border-color: #22c55e; color: #000; font-weight: 600; }
 
-/* STATS */
 .statsrow { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; padding: 0.9rem 1rem; }
 .statbox { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.7rem 0.9rem; }
 .statlbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #555; margin-bottom: 4px; }
 .statval { font-size: 20px; font-weight: 600; color: #22c55e; }
 
-/* WEEK NAV */
 .weeknav { display: flex; align-items: center; gap: 8px; padding: 0.5rem 1rem 0.3rem; }
-.weeknav button {
-  background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;
-  width: 28px; height: 28px; color: #888; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-}
+.weeknav button { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; width: 28px; height: 28px; color: #888; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .weeknav span { font-size: 13px; font-weight: 500; flex: 1; text-align: center; color: #ccc; }
 
-/* PROGRESS */
 .progwrap { padding: 0.4rem 1rem 0.8rem; }
 .proglabels { display: flex; justify-content: space-between; font-size: 11px; color: #666; margin-bottom: 4px; }
 .progbar { height: 4px; background: #2a2a2a; border-radius: 2px; overflow: hidden; }
 .progfill { height: 100%; background: #22c55e; border-radius: 2px; transition: width 0.4s ease; }
 
-/* DAY CHIPS */
 .seclabel { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; padding: 0 1rem; margin-bottom: 6px; }
 .dayrow2 { display: flex; gap: 6px; padding: 0 1rem; overflow-x: auto; margin-bottom: 1rem; }
 .dayrow2::-webkit-scrollbar { display: none; }
-.daychip {
-  flex-shrink: 0; width: 64px; background: #1a1a1a;
-  border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
-  padding: 8px 6px; text-align: center; cursor: pointer;
-}
+.daychip { flex-shrink: 0; width: 64px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 8px 6px; text-align: center; cursor: pointer; }
 .daychip.cur { border-color: #22c55e; background: rgba(34,197,94,0.1); }
 .daychip.done { border-color: rgba(34,197,94,0.4); }
 .daychip.rest { opacity: 0.4; cursor: default; }
@@ -114,91 +67,61 @@ input[type="text"]::placeholder { color: #555; }
 .daychip.cur .chiplbl { color: #22c55e; }
 .chipcheck { font-size: 14px; margin-top: 3px; }
 
-/* EXERCISES */
 .exhead { padding: 0 1rem; margin-bottom: 0.8rem; }
 .exhead h3 { font-size: 17px; font-weight: 600; margin-bottom: 3px; }
 .exhead p { font-size: 12px; color: #888; }
-.exlist { padding: 0 1rem; display: flex; flex-direction: column; gap: 8px; }
-.exrow {
-  background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
-  padding: 0.85rem 1rem; display: flex; align-items: center; gap: 12px; cursor: pointer;
-  transition: border-color 0.15s;
-}
-.exrow:hover { border-color: rgba(255,255,255,0.18); }
-.exrow.done { border-color: #22c55e; background: rgba(34,197,94,0.07); }
-.exicon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-.push-ic { background: rgba(59,130,246,0.2); }
-.pull-ic { background: rgba(139,92,246,0.2); }
-.legs-ic { background: rgba(245,158,11,0.2); }
-.core-ic { background: rgba(34,197,94,0.15); }
+.exlist { padding: 0 1rem; display: flex; flex-direction: column; gap: 10px; }
+
+/* Exercise card with animation */
+.excard { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; overflow: hidden; transition: border-color 0.15s; }
+.excard.done { border-color: #22c55e; background: rgba(34,197,94,0.05); }
+.excard-top { display: flex; align-items: center; gap: 12px; padding: 0.85rem 1rem; cursor: pointer; }
+.exthumb { width: 54px; height: 54px; border-radius: 10px; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.push-bg { background: rgba(59,130,246,0.2); }
+.pull-bg { background: rgba(139,92,246,0.2); }
+.legs-bg { background: rgba(245,158,11,0.2); }
+.core-bg { background: rgba(34,197,94,0.15); }
+.exinfo { flex: 1; }
 .exname { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
 .exdetail { font-size: 12px; color: #777; }
 .exright { text-align: right; flex-shrink: 0; }
 .exsets { font-size: 13px; font-weight: 600; color: #22c55e; }
 .excheck { font-size: 18px; margin-top: 3px; }
+.exexpand { border-top: 1px solid rgba(255,255,255,0.06); padding: 1rem; display: none; }
+.exexpand.open { display: block; }
+.anim-wrap { background: #111; border-radius: 10px; padding: 0.5rem; text-align: center; margin-bottom: 0.6rem; }
+.anim-label { font-size: 11px; color: #555; margin-top: 4px; }
+.ex-tip { font-size: 12px; color: #999; line-height: 1.55; }
 
-/* TIP */
-.tipbox {
-  margin: 0.9rem 1rem; background: #1a1a1a;
-  border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 0.8rem 0.9rem;
-}
+.tipbox { margin: 0.9rem 1rem; background: #1a1a1a; border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 0.8rem 0.9rem; }
 .tiptag { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #22c55e; margin-bottom: 3px; }
 .tiptext { font-size: 13px; color: #999; line-height: 1.55; }
 
-/* DONE BANNER */
-.donebanner {
-  margin: 0.9rem 1rem; background: rgba(34,197,94,0.08);
-  border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 1rem; text-align: center;
-}
+.donebanner { margin: 0.9rem 1rem; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 1rem; text-align: center; }
 .donebanner h4 { color: #22c55e; font-size: 15px; font-weight: 600; margin-bottom: 3px; }
 .donebanner p { font-size: 13px; color: #888; }
-
-/* BUTTONS */
-.completebtn {
-  display: block; width: calc(100% - 2rem); margin: 0.9rem 1rem 0;
-  background: #22c55e; color: #000; border: none; border-radius: 8px;
-  padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer;
-}
+.completebtn { display: block; width: calc(100% - 2rem); margin: 0.9rem 1rem 0; background: #22c55e; color: #000; border: none; border-radius: 8px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; }
 .completebtn:disabled { opacity: 0.3; cursor: not-allowed; }
-.undonebtn {
-  display: block; width: calc(100% - 2rem); margin: 0.9rem 1rem 0;
-  background: #1a1a1a; color: #888; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
-  padding: 13px; font-size: 14px; cursor: pointer;
-}
+.undonebtn { display: block; width: calc(100% - 2rem); margin: 0.9rem 1rem 0; background: #1a1a1a; color: #888; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 13px; font-size: 14px; cursor: pointer; }
 
-/* REST VIEW */
 .restview { text-align: center; padding: 3rem 1.5rem; }
 .restemoji { font-size: 52px; margin-bottom: 1rem; }
 .restview h3 { font-size: 20px; font-weight: 600; margin-bottom: 0.5rem; }
 .restview p { font-size: 14px; color: #888; line-height: 1.7; max-width: 300px; margin: 0 auto; }
 
-/* HISTORY */
 .histlist { padding: 0 1rem; display: flex; flex-direction: column; gap: 8px; }
-.histitem {
-  background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
-  padding: 0.85rem 1rem; display: flex; align-items: center; gap: 12px;
-}
+.histitem { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 0.85rem 1rem; display: flex; align-items: center; gap: 12px; }
 .histdot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
 .histtitle { font-size: 14px; font-weight: 500; }
 .histdate { font-size: 12px; color: #777; margin-top: 2px; }
 .histbadge { font-size: 11px; padding: 3px 10px; border-radius: 10px; background: rgba(34,197,94,0.12); color: #22c55e; }
 .empty { text-align: center; padding: 3rem 1rem; color: #555; font-size: 14px; }
 
-/* BOTTOM NAV */
-.bottomnav {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  background: #0f0f0f; border-top: 1px solid rgba(255,255,255,0.08);
-  display: flex; z-index: 20;
-}
-.navitem {
-  flex: 1; display: flex; flex-direction: column; align-items: center;
-  padding: 10px 0; cursor: pointer; color: #555;
-  font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; gap: 3px;
-}
+.bottomnav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f0f0f; border-top: 1px solid rgba(255,255,255,0.08); display: flex; z-index: 20; }
+.navitem { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 0; cursor: pointer; color: #555; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; gap: 3px; }
 .navitem.active { color: #22c55e; }
 .navic { font-size: 20px; }
 
-/* MODAL */
 .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 100; align-items: flex-end; justify-content: center; }
 .overlay.open { display: flex; }
 .modal { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.12); border-radius: 20px 20px 0 0; padding: 1.4rem 1.2rem 2rem; width: 100%; max-width: 520px; }
@@ -209,28 +132,22 @@ input[type="text"]::placeholder { color: #555; }
 .mrowlbl { font-size: 14px; }
 .mrowsub { font-size: 12px; color: #777; margin-top: 2px; }
 .mrowval { font-size: 13px; color: #22c55e; font-weight: 500; }
-.btnsm {
-  background: #242424; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
-  padding: 7px 13px; color: #aaa; font-size: 13px; cursor: pointer;
-}
-.btndanger { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #ef4444; width: 100%; padding: 12px; text-align: center; margin-top: 0.5rem; border-radius: 8px; font-size: 14px; cursor: pointer; }
+.btnsm { background: #242424; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 7px 13px; color: #aaa; font-size: 13px; cursor: pointer; }
+.btndanger { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #ef4444; width: 100%; padding: 12px; text-align: center; margin-top: 0.5rem; border-radius: 8px; font-size: 14px; cursor: pointer; border: 1px solid rgba(239,68,68,0.3); }
 .mdayrow { display: flex; gap: 6px; margin-top: 0.7rem; flex-wrap: wrap; }
 </style>
 </head>
 <body>
 
-<!-- SETUP -->
 <div id="setup-screen">
   <div class="card">
     <div class="logo">● Calisthenics Trainer</div>
     <h1>Dein Training,<br>dein Fortschritt.</h1>
     <p>Richte deinen Plan ein. Kein Equipment nötig – nur Boden, Stuhl und Tisch.</p>
-
     <div class="fgroup">
       <label class="flabel" for="uname">Dein Name</label>
       <input type="text" id="uname" placeholder="z.B. Max" maxlength="30">
     </div>
-
     <div class="fgroup">
       <label class="flabel">Erfahrungslevel</label>
       <div class="grid3">
@@ -239,7 +156,6 @@ input[type="text"]::placeholder { color: #555; }
         <div class="selfbtn" data-v="advanced" onclick="pickLevel(this)"><span class="ic">⚡</span>Experte</div>
       </div>
     </div>
-
     <div class="fgroup">
       <label class="flabel">Trainingstage pro Woche</label>
       <div class="dayrow">
@@ -250,79 +166,54 @@ input[type="text"]::placeholder { color: #555; }
         <div class="daybtn" data-v="6" onclick="pickDays(this)">6</div>
       </div>
     </div>
-
     <button class="btnprimary" id="startbtn" disabled onclick="startApp()">Training starten →</button>
   </div>
 </div>
 
-<!-- APP -->
 <div id="app-screen">
   <div class="topbar">
-    <div>
-      <h2 id="tbtitle">Training</h2>
-      <p id="tbsub">Woche 1</p>
-    </div>
+    <div><h2 id="tbtitle">Training</h2><p id="tbsub">Woche 1</p></div>
     <div class="userpill" onclick="openModal()">👤 <span id="uspan"></span></div>
   </div>
-
   <div class="tabrow">
     <div class="tabitem active" onclick="showTab('workout',this)">Workout</div>
     <div class="tabitem" onclick="showTab('history',this)">Verlauf</div>
   </div>
-
   <div id="tab-workout">
     <div class="statsrow">
       <div class="statbox"><div class="statlbl">Einheiten</div><div class="statval" id="sdone">0</div></div>
       <div class="statbox"><div class="statlbl">Streak</div><div class="statval" id="sstreak">0🔥</div></div>
       <div class="statbox"><div class="statlbl">Übungen</div><div class="statval" id="stotal">0</div></div>
     </div>
-
     <div class="weeknav">
       <button onclick="chWeek(-1)">‹</button>
       <span id="wklabel">Woche 1 von 4</span>
       <button onclick="chWeek(1)">›</button>
     </div>
-
     <div class="progwrap">
       <div class="proglabels"><span>Wochenfortschritt</span><span id="progpct">0%</span></div>
       <div class="progbar"><div class="progfill" id="progfill" style="width:0%"></div></div>
     </div>
-
     <p class="seclabel">Diese Woche</p>
     <div class="dayrow2" id="daychips"></div>
     <div id="wkcontent"></div>
   </div>
-
   <div id="tab-history" style="display:none; padding-top:1rem;">
     <div class="histlist" id="histlist"></div>
   </div>
-
   <div class="bottomnav">
-    <div class="navitem active" id="nav-workout" onclick="showTab('workout', null)">
-      <span class="navic">🏋️</span>Workout
-    </div>
-    <div class="navitem" id="nav-history" onclick="showTab('history', null)">
-      <span class="navic">📊</span>Verlauf
-    </div>
+    <div class="navitem active" id="nav-workout" onclick="showTab('workout',null)"><span class="navic">🏋️</span>Workout</div>
+    <div class="navitem" id="nav-history" onclick="showTab('history',null)"><span class="navic">📊</span>Verlauf</div>
   </div>
 </div>
 
-<!-- MODAL -->
 <div class="overlay" id="modal" onclick="closeModalOut(event)">
   <div class="modal">
     <div class="mhandle"></div>
     <h3>Einstellungen</h3>
-    <div class="mrow">
-      <div><div class="mrowlbl">Name</div><div class="mrowsub" id="mname"></div></div>
-      <button class="btnsm" onclick="changeName()">Ändern</button>
-    </div>
-    <div class="mrow">
-      <div><div class="mrowlbl">Level</div><div class="mrowsub" id="mlevel"></div></div>
-    </div>
-    <div class="mrow">
-      <div><div class="mrowlbl">Trainingstage / Woche</div><div class="mrowsub">Jederzeit änderbar</div></div>
-      <div class="mrowval" id="mdays"></div>
-    </div>
+    <div class="mrow"><div><div class="mrowlbl">Name</div><div class="mrowsub" id="mname"></div></div><button class="btnsm" onclick="changeName()">Ändern</button></div>
+    <div class="mrow"><div><div class="mrowlbl">Level</div><div class="mrowsub" id="mlevel"></div></div></div>
+    <div class="mrow"><div><div class="mrowlbl">Trainingstage / Woche</div><div class="mrowsub">Jederzeit änderbar</div></div><div class="mrowval" id="mdays"></div></div>
     <div class="mdayrow" id="mdaybtns"></div>
     <button class="btndanger" onclick="resetAll()">⚠ Alle Daten löschen</button>
     <button class="btnsm" style="width:100%;text-align:center;margin-top:8px;" onclick="closeModal()">Schließen</button>
@@ -330,384 +221,554 @@ input[type="text"]::placeholder { color: #555; }
 </div>
 
 <script>
-// ── DATA ──────────────────────────────────────
+// ── SVG ANIMATIONS ───────────────────────────
+// Each returns an SVG string showing the exercise movement
+var ANIMS = {};
+
+ANIMS['Liegestütze'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .up{animation:pushup 1.8s ease-in-out infinite}
+    @keyframes pushup{0%,100%{transform:translateY(0)}50%{transform:translateY(14px)}}
+  </style>
+  <g class="up">
+    <circle cx="80" cy="18" r="8" fill="#f0f0f0"/>
+    <line x1="80" y1="26" x2="80" y2="50" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="32" x2="55" y2="44" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+    <line x1="55" y1="44" x2="48" y2="58" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="32" x2="105" y2="44" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+    <line x1="105" y1="44" x2="112" y2="58" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="50" x2="65" y2="68" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="50" x2="95" y2="68" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+    <line x1="65" y1="68" x2="62" y2="80" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+    <line x1="95" y1="68" x2="98" y2="80" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <line x1="30" y1="82" x2="130" y2="82" stroke="#333" stroke-width="2"/>
+  <text x="80" y="92" text-anchor="middle" fill="#555" font-size="9">Liegestütz</text>
+</svg>`;
+
+ANIMS['Enge Liegestütze'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .up{animation:pushup 1.8s ease-in-out infinite}
+    @keyframes pushup{0%,100%{transform:translateY(0)}50%{transform:translateY(14px)}}
+  </style>
+  <g class="up">
+    <circle cx="80" cy="18" r="8" fill="#3b82f6"/>
+    <line x1="80" y1="26" x2="80" y2="50" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="32" x2="62" y2="44" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="62" y1="44" x2="58" y2="58" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="32" x2="98" y2="44" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="98" y1="44" x2="102" y2="58" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="50" x2="65" y2="68" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="50" x2="95" y2="68" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="65" y1="68" x2="62" y2="80" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="95" y1="68" x2="98" y2="80" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <line x1="30" y1="82" x2="130" y2="82" stroke="#333" stroke-width="2"/>
+  <text x="80" y="92" text-anchor="middle" fill="#555" font-size="9">Enger Griff – Trizeps</text>
+</svg>`;
+
+ANIMS['Pike Liegestütze'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .pike{animation:pike 2s ease-in-out infinite}
+    @keyframes pike{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
+  </style>
+  <g class="pike">
+    <circle cx="80" cy="15" r="8" fill="#3b82f6"/>
+    <line x1="80" y1="23" x2="80" y2="48" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="30" x2="55" y2="42" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="55" y1="42" x2="48" y2="56" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="30" x2="105" y2="42" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="105" y1="42" x2="112" y2="56" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="48" x2="70" y2="72" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="48" x2="90" y2="72" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="70" y1="72" x2="68" y2="84" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="90" y1="72" x2="92" y2="84" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <line x1="30" y1="88" x2="130" y2="88" stroke="#333" stroke-width="2"/>
+  <text x="80" y="98" text-anchor="middle" fill="#555" font-size="9">V-Haltung → Schultern</text>
+</svg>`;
+
+ANIMS['Dips (Stuhlkante)'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .dip{animation:dip 1.8s ease-in-out infinite}
+    @keyframes dip{0%,100%{transform:translateY(0)}50%{transform:translateY(16px)}}
+  </style>
+  <rect x="30" y="52" width="100" height="8" rx="3" fill="#444"/>
+  <rect x="30" y="60" width="10" height="28" rx="2" fill="#333"/>
+  <rect x="120" y="60" width="10" height="28" rx="2" fill="#333"/>
+  <g class="dip">
+    <circle cx="80" cy="16" r="8" fill="#3b82f6"/>
+    <line x1="80" y1="24" x2="80" y2="46" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="30" x2="52" y2="44" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="52" y1="44" x2="44" y2="55" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="30" x2="108" y2="44" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="108" y1="44" x2="116" y2="55" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="46" x2="72" y2="68" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="46" x2="88" y2="68" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="80" y="98" text-anchor="middle" fill="#555" font-size="9">Stuhlkante → Trizeps</text>
+</svg>`;
+
+ANIMS['Liegestütz auf Knien'] = ANIMS['Liegestütze'];
+
+ANIMS['Tischrudern'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .row{animation:row 1.8s ease-in-out infinite}
+    @keyframes row{0%,100%{transform:translateY(4px)}50%{transform:translateY(-4px)}}
+  </style>
+  <rect x="20" y="14" width="120" height="7" rx="3" fill="#444"/>
+  <rect x="22" y="21" width="8" height="32" rx="2" fill="#333"/>
+  <rect x="130" y="21" width="8" height="32" rx="2" fill="#333"/>
+  <g class="row">
+    <circle cx="80" cy="48" r="8" fill="#8b5cf6"/>
+    <line x1="80" y1="56" x2="80" y2="78" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="62" x2="52" y2="24" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="52" y1="24" x2="44" y2="14" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="80" y1="62" x2="108" y2="24" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="108" y1="24" x2="116" y2="14" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="80" y1="78" x2="64" y2="94" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="78" x2="96" y2="94" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="80" y="102" text-anchor="middle" fill="#555" font-size="9">Unter Tisch – ziehen</text>
+</svg>`;
+
+ANIMS['Handtuch-Rudern'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .htow{animation:htow 2s ease-in-out infinite}
+    @keyframes htow{0%,100%{transform:rotate(-8deg) translateX(0)}50%{transform:rotate(8deg) translateX(0)}}
+  </style>
+  <rect x="74" y="0" width="12" height="50" rx="4" fill="#444"/>
+  <g class="htow">
+    <circle cx="80" cy="36" r="8" fill="#8b5cf6"/>
+    <line x1="80" y1="44" x2="80" y2="66" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="50" x2="56" y2="30" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="50" x2="104" y2="30" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="66" x2="66" y2="82" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="66" x2="94" y2="82" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="80" y="98" text-anchor="middle" fill="#555" font-size="9">Handtuch am Türgriff</text>
+</svg>`;
+
+ANIMS['Superman Hold'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .sup{animation:sup 2s ease-in-out infinite}
+    @keyframes sup{0%,100%{transform:translateY(4px)}50%{transform:translateY(-4px)}}
+  </style>
+  <line x1="20" y1="68" x2="140" y2="68" stroke="#333" stroke-width="2"/>
+  <g class="sup">
+    <circle cx="80" cy="46" r="8" fill="#8b5cf6"/>
+    <line x1="80" y1="54" x2="80" y2="66" stroke="#8b5cf6" stroke-width="3"/>
+    <line x1="80" y1="58" x2="40" y2="52" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="58" x2="120" y2="52" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="66" x2="55" y2="68" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="66" x2="105" y2="68" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="80" y="82" text-anchor="middle" fill="#555" font-size="9">Bauchlage – Rücken</text>
+</svg>`;
+
+ANIMS['Rückenstrecken'] = ANIMS['Superman Hold'];
+ANIMS['Einarm-Rudern (Tisch)'] = ANIMS['Tischrudern'];
+
+ANIMS['Kniebeugen'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .squp{animation:squat 2s ease-in-out infinite}
+    @keyframes squat{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(18px) scaleY(0.82)}}
+  </style>
+  <line x1="20" y1="90" x2="140" y2="90" stroke="#333" stroke-width="2"/>
+  <g class="squp" style="transform-origin:80px 88px">
+    <circle cx="80" cy="16" r="8" fill="#f59e0b"/>
+    <line x1="80" y1="24" x2="80" y2="50" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="32" x2="58" y2="44" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="58" y1="44" x2="52" y2="58" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="32" x2="102" y2="44" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="102" y1="44" x2="108" y2="58" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="50" x2="64" y2="70" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="50" x2="96" y2="70" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="64" y1="70" x2="60" y2="88" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="96" y1="70" x2="100" y2="88" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="80" y="100" text-anchor="middle" fill="#555" font-size="9">Kniebeugen – tief</text>
+</svg>`;
+
+ANIMS['Ausfallschritte'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .lunge{animation:lunge 2s ease-in-out infinite}
+    @keyframes lunge{0%,100%{transform:translateX(0)}50%{transform:translateX(14px)}}
+  </style>
+  <line x1="10" y1="90" x2="150" y2="90" stroke="#333" stroke-width="2"/>
+  <g class="lunge">
+    <circle cx="75" cy="18" r="8" fill="#f59e0b"/>
+    <line x1="75" y1="26" x2="75" y2="50" stroke="#f59e0b" stroke-width="3"/>
+    <line x1="75" y1="32" x2="54" y2="42" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="54" y1="42" x2="48" y2="54" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="75" y1="32" x2="96" y2="42" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="96" y1="42" x2="100" y2="54" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="75" y1="50" x2="55" y2="68" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="55" y1="68" x2="48" y2="90" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="75" y1="50" x2="100" y2="66" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="100" y1="66" x2="108" y2="90" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="80" y="100" text-anchor="middle" fill="#555" font-size="9">Ausfallschritt</text>
+</svg>`;
+
+ANIMS['Glute Bridge'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .glute{animation:glute 2s ease-in-out infinite}
+    @keyframes glute{0%,100%{transform:translateY(8px)}50%{transform:translateY(-4px)}}
+  </style>
+  <line x1="10" y1="88" x2="150" y2="88" stroke="#333" stroke-width="2"/>
+  <g class="glute">
+    <circle cx="45" cy="58" r="8" fill="#f59e0b"/>
+    <line x1="45" y1="66" x2="55" y2="80" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="45" y1="60" x2="80" y2="48" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="48" x2="110" y2="62" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="110" y1="62" x2="116" y2="80" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="45" y1="62" x2="28" y2="80" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="45" y1="62" x2="38" y2="74" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="80" y="98" text-anchor="middle" fill="#555" font-size="9">Glute Bridge – Hüfte heben</text>
+</svg>`;
+
+ANIMS['Wadenheben (Stuhlkante)'] = `<svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .calf{animation:calf 1.2s ease-in-out infinite}
+    @keyframes calf{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  </style>
+  <line x1="20" y1="90" x2="140" y2="90" stroke="#333" stroke-width="2"/>
+  <rect x="55" y="60" width="50" height="6" rx="2" fill="#444"/>
+  <g class="calf">
+    <circle cx="80" cy="16" r="8" fill="#f59e0b"/>
+    <line x1="80" y1="24" x2="80" y2="48" stroke="#f59e0b" stroke-width="3"/>
+    <line x1="80" y1="32" x2="58" y2="44" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="32" x2="102" y2="44" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="48" x2="68" y2="62" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="48" x2="92" y2="62" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="68" y1="62" x2="65" y2="80" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <line x1="92" y1="62" x2="95" y2="80" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="80" y="100" text-anchor="middle" fill="#555" font-size="9">Zehenstand – Waden</text>
+</svg>`;
+
+ANIMS['Bulgarian Split Squat'] = ANIMS['Ausfallschritte'];
+
+ANIMS['Plank'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .plank{animation:plankpulse 2.5s ease-in-out infinite}
+    @keyframes plankpulse{0%,100%{opacity:1}50%{opacity:0.6}}
+  </style>
+  <line x1="10" y1="80" x2="150" y2="80" stroke="#333" stroke-width="2"/>
+  <g class="plank">
+    <circle cx="118" cy="44" r="8" fill="#22c55e"/>
+    <line x1="118" y1="52" x2="78" y2="62" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="98" y1="57" x2="105" y2="72" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="105" y1="72" x2="138" y2="72" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="118" y1="48" x2="96" y2="42" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="96" y1="42" x2="74" y2="70" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="78" y1="62" x2="50" y2="72" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="50" y1="72" x2="44" y2="80" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="80" y="90" text-anchor="middle" fill="#555" font-size="9">Plank – halten</text>
+</svg>`;
+
+ANIMS['Hollow Body Hold'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .hollow{animation:hol 2.5s ease-in-out infinite}
+    @keyframes hol{0%,100%{transform:translateY(4px)}50%{transform:translateY(0px)}}
+  </style>
+  <line x1="10" y1="80" x2="150" y2="80" stroke="#333" stroke-width="2"/>
+  <g class="hollow">
+    <circle cx="80" cy="50" r="8" fill="#22c55e"/>
+    <line x1="80" y1="58" x2="80" y2="72" stroke="#22c55e" stroke-width="3"/>
+    <line x1="80" y1="60" x2="36" y2="48" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="36" y1="48" x2="20" y2="44" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="60" x2="124" y2="48" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="124" y1="48" x2="140" y2="44" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="72" x2="56" y2="76" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="72" x2="104" y2="76" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="80" y="90" text-anchor="middle" fill="#555" font-size="9">Hollow Body – Rücken flach</text>
+</svg>`;
+
+ANIMS['Crunches'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .cr{animation:crunch 1.8s ease-in-out infinite}
+    @keyframes crunch{0%,100%{transform:translateY(4px) rotate(0deg)}50%{transform:translateY(-4px) rotate(-12deg)}}
+  </style>
+  <line x1="10" y1="82" x2="150" y2="82" stroke="#333" stroke-width="2"/>
+  <g class="cr" style="transform-origin:80px 68px">
+    <circle cx="80" cy="44" r="8" fill="#22c55e"/>
+    <line x1="80" y1="52" x2="80" y2="70" stroke="#22c55e" stroke-width="3"/>
+    <line x1="80" y1="56" x2="54" y2="48" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="56" x2="106" y2="48" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="70" x2="60" y2="76" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="70" x2="100" y2="76" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="60" y1="76" x2="56" y2="82" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="100" y1="76" x2="104" y2="82" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="80" y="92" text-anchor="middle" fill="#555" font-size="9">Crunch – kurze Bewegung</text>
+</svg>`;
+
+ANIMS['Mountain Climbers'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .mc-l{animation:mcl 0.8s ease-in-out infinite}
+    .mc-r{animation:mcr 0.8s ease-in-out infinite}
+    @keyframes mcl{0%,100%{transform:translateX(0) translateY(0)}50%{transform:translateX(14px) translateY(-10px)}}
+    @keyframes mcr{0%,100%{transform:translateX(0) translateY(0)}50%{transform:translateX(-14px) translateY(-10px)}}
+  </style>
+  <line x1="10" y1="82" x2="150" y2="82" stroke="#333" stroke-width="2"/>
+  <circle cx="110" cy="30" r="8" fill="#22c55e"/>
+  <line x1="110" y1="38" x2="80" y2="55" stroke="#22c55e" stroke-width="3"/>
+  <line x1="110" y1="42" x2="130" y2="35" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+  <line x1="130" y1="35" x2="138" y2="46" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+  <line x1="80" y1="55" x2="50" y2="68" stroke="#22c55e" stroke-width="3"/>
+  <line x1="50" y1="68" x2="44" y2="80" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+  <g class="mc-l"><line x1="80" y1="55" x2="68" y2="42" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/></g>
+  <g class="mc-r"><line x1="80" y1="55" x2="92" y2="68" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/><line x1="92" y1="68" x2="96" y2="80" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/></g>
+  <text x="80" y="92" text-anchor="middle" fill="#555" font-size="9">Mountain Climbers</text>
+</svg>`;
+
+ANIMS['Seitenplank'] = `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .sp{animation:sp 2.5s ease-in-out infinite}
+    @keyframes sp{0%,100%{transform:translateY(2px)}50%{transform:translateY(-2px)}}
+  </style>
+  <line x1="10" y1="80" x2="150" y2="80" stroke="#333" stroke-width="2"/>
+  <g class="sp">
+    <circle cx="110" cy="36" r="8" fill="#22c55e"/>
+    <line x1="110" y1="44" x2="80" y2="58" stroke="#22c55e" stroke-width="3"/>
+    <line x1="110" y1="46" x2="126" y2="38" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="126" y1="38" x2="140" y2="52" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="58" x2="44" y2="70" stroke="#22c55e" stroke-width="3"/>
+    <line x1="44" y1="70" x2="38" y2="80" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="58" x2="84" y2="72" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    <line x1="84" y1="72" x2="88" y2="80" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="80" y="90" text-anchor="middle" fill="#555" font-size="9">Seitenplank</text>
+</svg>`;
+
+// Fallback for any missing exercise
+function getAnim(name) {
+  if (ANIMS[name]) return ANIMS[name];
+  // Generic fallback
+  var color = '#22c55e';
+  return `<svg width="160" height="90" viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg">
+    <style>.fb{animation:fb 1.8s ease-in-out infinite}@keyframes fb{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}</style>
+    <g class="fb">
+      <circle cx="80" cy="25" r="10" fill="${color}"/>
+      <line x1="80" y1="35" x2="80" y2="58" stroke="${color}" stroke-width="3"/>
+      <line x1="80" y1="42" x2="58" y2="54" stroke="${color}" stroke-width="3" stroke-linecap="round"/>
+      <line x1="80" y1="42" x2="102" y2="54" stroke="${color}" stroke-width="3" stroke-linecap="round"/>
+      <line x1="80" y1="58" x2="65" y2="76" stroke="${color}" stroke-width="3" stroke-linecap="round"/>
+      <line x1="80" y1="58" x2="95" y2="76" stroke="${color}" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    <text x="80" y="90" text-anchor="middle" fill="#555" font-size="9">${name.substring(0,22)}</text>
+  </svg>`;
+}
+
+// ── DATA ─────────────────────────────────────
 var EXERCISES = {
   push: [
-    ["Liegestütze","Schulterbreit, Boden, volle Bewegung","3×10","push"],
-    ["Enge Liegestütze","Hände nah, Trizepsfokus","3×8","push"],
-    ["Pike Liegestütze","V-Haltung, Hüfte hoch, Kopf runter","3×8","push"],
-    ["Dips (Stuhlkante)","Stuhl hinter dir, Hände auf Kante","3×10","push"],
-    ["Liegestütz auf Knien","Rücken gerade, gute Basis","3×12","push"]
+    ["Liegestütze","Schulterbreit, Boden, volle Bewegung","3×10","push","Halte 1 Sek. oben – mehr Spannung."],
+    ["Enge Liegestütze","Hände nah beisammen, Trizepsfokus","3×8","push","Ellbogen eng am Körper halten."],
+    ["Pike Liegestütze","V-Haltung, Hüfte hoch, Kopf runter","3×8","push","Kopf soll fast den Boden berühren."],
+    ["Dips (Stuhlkante)","Stuhl hinter dir, Hände auf Kante","3×10","push","Rücken nah an der Stuhlkante."],
+    ["Liegestütz auf Knien","Rücken gerade, gute Basis für Anfänger","3×12","push","Knie als Stütze, Rücken bleibt gerade."]
   ],
   pull: [
-    ["Tischrudern","Unter Tisch hängen, Brust nach oben ziehen","3×10","pull"],
-    ["Handtuch-Rudern","Handtuch um Türgriff, Körper zurücklehnen","3×10","pull"],
-    ["Superman Hold","Bauchlage, Arme & Beine heben","3×12","pull"],
-    ["Rückenstrecken","Bauchlage, Oberkörper langsam heben","3×12","pull"],
-    ["Einarm-Rudern (Tisch)","Eine Seite, andere Hand leicht stützen","3×8","pull"]
+    ["Tischrudern","Unter Tisch hängen, Brust nach oben ziehen","3×10","pull","Schulterblätter am Ende zusammendrücken."],
+    ["Handtuch-Rudern","Handtuch um Türgriff, Körper zurücklehnen","3×10","pull","Je weiter zurück, desto schwerer."],
+    ["Superman Hold","Bauchlage, Arme & Beine gleichzeitig heben","3×12","pull","Oben 2 Sek. halten für mehr Wirkung."],
+    ["Rückenstrecken","Bauchlage, Oberkörper langsam heben","3×12","pull","Langsam senken – eccentrisch trainieren."],
+    ["Einarm-Rudern (Tisch)","Eine Seite, andere Hand leicht stützen","3×8","pull","So wenig Hilfe von der anderen Hand wie möglich."]
   ],
   legs: [
-    ["Kniebeugen","Schulterbreit, tief, Knie über Zehen","4×12","legs"],
-    ["Ausfallschritte","Wechselbeinig, Knie knapp über Boden","3×10","legs"],
-    ["Glute Bridge","Rücken am Boden, Hüfte heben & halten","3×15","legs"],
-    ["Wadenheben (Stuhlkante)","Zehenspitzen auf Kante, heben/senken","3×20","legs"],
-    ["Bulgarian Split Squat","Hinteres Bein auf Stuhl","3×8","legs"]
+    ["Kniebeugen","Schulterbreit, tief, Knie über Zehen","4×12","legs","Ferse bleibt immer am Boden."],
+    ["Ausfallschritte","Wechselbeinig, Knie knapp über Boden","3×10","legs","Oberkörper bleibt aufrecht."],
+    ["Glute Bridge","Rücken am Boden, Hüfte maximal heben","3×15","legs","1 Sek. oben halten, dann senken."],
+    ["Wadenheben (Stuhlkante)","Zehenspitzen auf Kante, heben und senken","3×20","legs","Ganz oben kurz halten."],
+    ["Bulgarian Split Squat","Hinteres Bein auf Stuhl, tief sinken","3×8","legs","Vorderes Knie über dem Zehenspitzen."]
   ],
   core: [
-    ["Plank","Boden, Körper gerade wie ein Brett","3×30s","core"],
-    ["Hollow Body Hold","Unterer Rücken am Boden, Beine leicht heben","3×20s","core"],
-    ["Crunches","Kurze saubere Bewegung, kein Schwung","3×15","core"],
-    ["Mountain Climbers","Liegestützposition, Knie wechseln","3×20","core"],
-    ["Seitenplank","Ellenbogen auf Boden, Hüfte gerade","3×20s","core"]
+    ["Plank","Boden, Körper gerade wie ein Brett","3×30s","core","Gesäß anspannen – nicht durchhängen."],
+    ["Hollow Body Hold","Unterer Rücken muss den Boden berühren","3×20s","core","Beine nur so hoch, dass Rücken flach bleibt."],
+    ["Crunches","Kurze saubere Bewegung, kein Schwung","3×15","core","Ausatmen beim Heben."],
+    ["Mountain Climbers","Liegestützposition, Knie wechseln","3×20","core","Hüfte unten halten – nicht wippen."],
+    ["Seitenplank","Ellenbogen auf Boden, Hüfte gerade halten","3×20s","core","Hüfte nicht absinken lassen."]
   ]
 };
 
 var WEEK_PLANS = [
-  // Woche 1
-  [
-    {label:"Push",type:"push",tip:"Halte oben 1 Sek. – das erhöht die Spannung.",ex:["push0","push1","push3","core0","core1"]},
-    {label:"Pull",type:"pull",tip:"Schulterblätter aktiv zusammenziehen, nicht nur mit Armen ziehen.",ex:["pull0","pull1","pull2","core1","pull3"]},
-    {label:"Beine",type:"legs",tip:"Knie zeigen immer in Zehenrichtung – immer!",ex:["legs0","legs1","legs2","legs3","core4"]},
-    {label:"Core",type:"core",tip:"Atme aus beim Anspannen – das aktiviert den Core tiefer.",ex:["core0","core1","core2","core3","core4"]},
-    {label:"Ganzkörper",type:"push",tip:"Volle Kontrolle ist wichtiger als Geschwindigkeit.",ex:["push0","legs0","pull0","core0","core3"]}
-  ],
-  // Woche 2
-  [
-    {label:"Push +",type:"push",tip:"+2 Wdh. gegenüber letzter Woche – kleiner Schritt, große Wirkung.",ex:["push0","push1","push2","push3","core0"]},
-    {label:"Pull +",type:"pull",tip:"2 Sek. ziehen, 3 Sek. loslassen – Tempo ist dein Widerstand.",ex:["pull0","pull1","pull4","pull2","core1"]},
-    {label:"Beine +",type:"legs",tip:"3 Sek. runter, 1 oben, 2 hoch – Tempo als Widerstand.",ex:["legs0","legs1","legs2","legs4","core4"]},
-    {label:"Core +",type:"core",tip:"V-Ups: Hüfte als Drehpunkt, Arme und Beine gleichzeitig.",ex:["core0","core1","core2","core3","core4"]},
-    {label:"Kombi",type:"push",tip:"Kombinationsübungen trainieren Koordination und Kraft gleichzeitig.",ex:["push0","pull0","legs0","core3","core0"]}
-  ],
-  // Woche 3
-  [
-    {label:"Push Int.",type:"push",tip:"Ab Woche 3: Qualität schlägt Quantität – jede Wiederholung bewusst.",ex:["push0","push2","push3","core0","core3"]},
-    {label:"Pull Int.",type:"pull",tip:"Einarm-Rudern: so wenig Hilfe wie nötig – baue die Seite auf.",ex:["pull0","pull4","pull1","pull2","core1"]},
-    {label:"Beine Int.",type:"legs",tip:"Einbeinige Übungen zeigen Schwächen im Gleichgewicht – bleib dran.",ex:["legs0","legs1","legs4","legs2","core4"]},
-    {label:"Core Int.",type:"core",tip:"Hollow Body: unterer Rücken MUSS den Boden berühren.",ex:["core1","core0","core2","core3","core4"]},
-    {label:"Ganzkörper",type:"push",tip:"Flow-Training: Übergänge zwischen Moves trainieren echte Körperkontrolle.",ex:["push0","pull0","legs0","core3","core0"]}
-  ],
-  // Woche 4
-  [
-    {label:"Peak Push",type:"push",tip:"Notiere deine Maximalwdh. – Ausgangspunkt für den nächsten Zyklus!",ex:["push0","push1","push2","push3","core0"]},
-    {label:"Peak Pull",type:"pull",tip:"Maximales Tischrudern heute – schiebe Grenzen sauber aus.",ex:["pull0","pull4","pull1","pull2","core1"]},
-    {label:"Peak Beine",type:"legs",tip:"Bulgarian Split Squat: tiefer als letzte Woche – Schritt für Schritt.",ex:["legs0","legs4","legs1","legs2","core4"]},
-    {label:"Skill",type:"core",tip:"Heute kein fester Plan – entwickle deinen eigenen Rhythmus.",ex:["core0","core1","core2","core3","core4"]},
-    {label:"Abschluss",type:"push",tip:"Letzte Einheit: Lieblings-Übungen + 10 Min. Stretching danach.",ex:["push0","pull0","legs0","core3","core0"]}
-  ]
+  [{label:"Push",type:"push",tip:"Halte oben 1 Sek. – das erhöht die Spannung.",ex:["push0","push1","push3","core0","core1"]},
+   {label:"Pull",type:"pull",tip:"Schulterblätter aktiv zusammenziehen, nicht nur mit Armen.",ex:["pull0","pull1","pull2","core1","pull3"]},
+   {label:"Beine",type:"legs",tip:"Knie zeigen immer in Zehenrichtung!",ex:["legs0","legs1","legs2","legs3","core4"]},
+   {label:"Core",type:"core",tip:"Atme aus beim Anspannen – aktiviert den Core tiefer.",ex:["core0","core1","core2","core3","core4"]},
+   {label:"Ganzkörper",type:"push",tip:"Volle Kontrolle ist wichtiger als Geschwindigkeit.",ex:["push0","legs0","pull0","core0","core3"]}],
+  [{label:"Push +",type:"push",tip:"+2 Wdh. gegenüber letzter Woche.",ex:["push0","push1","push2","push3","core0"]},
+   {label:"Pull +",type:"pull",tip:"2 Sek. ziehen, 3 Sek. loslassen.",ex:["pull0","pull1","pull4","pull2","core1"]},
+   {label:"Beine +",type:"legs",tip:"3 Sek. runter, 1 oben, 2 hoch.",ex:["legs0","legs1","legs2","legs4","core4"]},
+   {label:"Core +",type:"core",tip:"Atme bewusst – aus beim Anspannen.",ex:["core0","core1","core2","core3","core4"]},
+   {label:"Kombi",type:"push",tip:"Kombinationen trainieren Koordination und Kraft.",ex:["push0","pull0","legs0","core3","core0"]}],
+  [{label:"Push Int.",type:"push",tip:"Qualität schlägt Quantität – jede Wdh. bewusst.",ex:["push0","push2","push3","core0","core3"]},
+   {label:"Pull Int.",type:"pull",tip:"Einarm-Rudern: so wenig Hilfe wie nötig.",ex:["pull0","pull4","pull1","pull2","core1"]},
+   {label:"Beine Int.",type:"legs",tip:"Einbeinige Übungen zeigen Schwächen – bleib dran.",ex:["legs0","legs1","legs4","legs2","core4"]},
+   {label:"Core Int.",type:"core",tip:"Hollow Body: unterer Rücken MUSS flach bleiben.",ex:["core1","core0","core2","core3","core4"]},
+   {label:"Ganzkörper",type:"push",tip:"Flow: Übergänge zwischen Moves trainieren.",ex:["push0","pull0","legs0","core3","core0"]}],
+  [{label:"Peak Push",type:"push",tip:"Notiere deine Maximalwdh. für den nächsten Zyklus!",ex:["push0","push1","push2","push3","core0"]},
+   {label:"Peak Pull",type:"pull",tip:"Maximales Rudern – schiebe Grenzen sauber aus.",ex:["pull0","pull4","pull1","pull2","core1"]},
+   {label:"Peak Beine",type:"legs",tip:"Tiefer als letzte Woche – ein Schritt weiter.",ex:["legs0","legs4","legs1","legs2","core4"]},
+   {label:"Skill",type:"core",tip:"Heute kein fester Plan – entwickle deinen Rhythmus.",ex:["core0","core1","core2","core3","core4"]},
+   {label:"Abschluss",type:"push",tip:"Letzte Einheit + 10 Min. Stretching danach.",ex:["push0","pull0","legs0","core3","core0"]}]
 ];
 
-var LEVEL_SETS = {
-  beginner: [3,3],
-  intermediate: [4,2],
-  advanced: [5,2]
-};
-
-var PATTERNS = {
-  2: [1,0,0,1,0,0,0],
-  3: [1,0,1,0,1,0,0],
-  4: [1,0,1,1,0,1,0],
-  5: [1,1,0,1,1,0,1],
-  6: [1,1,1,0,1,1,1]
-};
+var PATTERNS = {2:[1,0,0,1,0,0,0],3:[1,0,1,0,1,0,0],4:[1,0,1,1,0,1,0],5:[1,1,0,1,1,0,1],6:[1,1,1,0,1,1,1]};
 
 function getEx(key) {
-  var type = key.replace(/\d+/,'');
-  var idx = parseInt(key.replace(/\D+/,''));
+  var type = key.replace(/\d+/,''), idx = parseInt(key.replace(/\D+/,''));
   return EXERCISES[type][idx];
 }
-
-function getExWithLevel(key, level) {
-  var ex = getEx(key);
-  var base = ex[2];
-  if (level === 'intermediate') {
-    base = base.replace(/(\d+)×(\d+)/g, function(m,s,r){ return (parseInt(s)+1)+'×'+(parseInt(r)+2); });
-  } else if (level === 'advanced') {
-    base = base.replace(/(\d+)×(\d+)/g, function(m,s,r){ return (parseInt(s)+2)+'×'+(parseInt(r)+4); });
-  }
-  return [ex[0], ex[1], base, ex[3]];
+function getExLevel(key, level) {
+  var ex = getEx(key), sets = ex[2];
+  if (level==='intermediate') sets = sets.replace(/(\d+)×(\d+)/g,function(m,s,r){return (parseInt(s)+1)+'×'+(parseInt(r)+2);});
+  else if (level==='advanced') sets = sets.replace(/(\d+)×(\d+)/g,function(m,s,r){return (parseInt(s)+2)+'×'+(parseInt(r)+4);});
+  return {name:ex[0],detail:ex[1],sets:sets,type:ex[3],animtip:ex[4]};
 }
 
 // ── STATE ─────────────────────────────────────
-var S = {
-  user: null,
-  week: 1,
-  dayIdx: 0,
-  done: [],       // [{date,week,day,label}]
-  exdone: {}      // "w-d-name": true
-};
+var S = { user:null, week:1, dayIdx:0, done:[], exdone:{} };
+function save(){try{localStorage.setItem('cali3',JSON.stringify(S));}catch(e){}}
+function load(){try{var r=localStorage.getItem('cali3');if(r){var p=JSON.parse(r);if(p&&p.user)S=p;}}catch(e){}}
 
-function save() {
-  try { localStorage.setItem('cali2', JSON.stringify(S)); } catch(e) {}
-}
-function load() {
-  try {
-    var r = localStorage.getItem('cali2');
-    if (r) { var p = JSON.parse(r); if (p && p.user) S = p; }
-  } catch(e) {}
-}
+var _level=null, _days=null;
+function pickLevel(el){document.querySelectorAll('.selfbtn').forEach(function(b){b.classList.remove('sel');});el.classList.add('sel');_level=el.dataset.v;chkReady();}
+function pickDays(el){document.querySelectorAll('.daybtn').forEach(function(b){b.classList.remove('sel');});el.classList.add('sel');_days=parseInt(el.dataset.v);chkReady();}
+function chkReady(){document.getElementById('startbtn').disabled=!(document.getElementById('uname').value.trim()&&_level&&_days);}
+document.getElementById('uname').addEventListener('input',chkReady);
 
-// ── SETUP ─────────────────────────────────────
-var _level = null, _days = null;
-
-function pickLevel(el) {
-  document.querySelectorAll('.selfbtn').forEach(function(b){ b.classList.remove('sel'); });
-  el.classList.add('sel');
-  _level = el.dataset.v;
-  checkReady();
+function startApp(){
+  S={user:{name:document.getElementById('uname').value.trim(),level:_level,days:_days},week:1,dayIdx:0,done:[],exdone:{}};
+  save(); launch();
 }
-function pickDays(el) {
-  document.querySelectorAll('.daybtn').forEach(function(b){ b.classList.remove('sel'); });
-  el.classList.add('sel');
-  _days = parseInt(el.dataset.v);
-  checkReady();
-}
-function checkReady() {
-  var name = document.getElementById('uname').value.trim();
-  document.getElementById('startbtn').disabled = !(name && _level && _days);
-}
-document.getElementById('uname').addEventListener('input', checkReady);
-
-function startApp() {
-  var name = document.getElementById('uname').value.trim();
-  S.user = { name: name, level: _level, days: _days };
-  S.week = 1; S.dayIdx = 0; S.done = []; S.exdone = {};
-  save();
-  launchApp();
-}
-
-// ── APP ───────────────────────────────────────
-function launchApp() {
+function launch(){
   document.getElementById('setup-screen').classList.remove('show');
   document.getElementById('app-screen').classList.add('show');
   renderAll();
 }
-
-function renderAll() {
-  var u = S.user;
-  document.getElementById('uspan').textContent = u.name;
-  document.getElementById('tbtitle').textContent = 'Hallo, ' + u.name + ' 👋';
-  document.getElementById('tbsub').textContent = 'Woche ' + S.week;
-  renderStats();
-  renderDayChips();
-  renderWorkout();
+function renderAll(){
+  var u=S.user;
+  document.getElementById('uspan').textContent=u.name;
+  document.getElementById('tbtitle').textContent='Hallo, '+u.name+' 👋';
+  document.getElementById('tbsub').textContent='Woche '+S.week;
+  renderStats(); renderChips(); renderWorkout();
 }
-
-function renderStats() {
-  document.getElementById('sdone').textContent = S.done.length;
-  document.getElementById('stotal').textContent = S.done.length * 5;
-  var streak = 0;
-  var today = dstr(new Date());
-  var dates = S.done.map(function(w){ return w.date; }).filter(function(v,i,a){ return a.indexOf(v)===i; }).sort().reverse();
-  var chk = today;
-  for (var i = 0; i < dates.length; i++) {
-    if (dates[i] === chk) { streak++; var d = new Date(chk); d.setDate(d.getDate()-1); chk = dstr(d); }
-    else break;
-  }
-  document.getElementById('sstreak').textContent = streak + '🔥';
+function renderStats(){
+  document.getElementById('sdone').textContent=S.done.length;
+  document.getElementById('stotal').textContent=S.done.length*5;
+  var streak=0,today=ds(new Date()),dates=S.done.map(function(w){return w.date;}).filter(function(v,i,a){return a.indexOf(v)===i;}).sort().reverse(),chk=today;
+  for(var i=0;i<dates.length;i++){if(dates[i]===chk){streak++;var d=new Date(chk);d.setDate(d.getDate()-1);chk=ds(d);}else break;}
+  document.getElementById('sstreak').textContent=streak+'🔥';
 }
-
-function buildDays() {
-  var plan = WEEK_PLANS[S.week - 1];
-  var pat = PATTERNS[S.user.days] || PATTERNS[3];
-  var result = [];
-  var ti = 0;
-  for (var i = 0; i < 7; i++) {
-    if (pat[i] && ti < plan.length) {
-      result.push({ rest: false, label: plan[ti].label, type: plan[ti].type, tip: plan[ti].tip, exkeys: plan[ti].ex, di: i });
-      ti++;
-    } else {
-      result.push({ rest: true, di: i });
-    }
-  }
+function buildDays(){
+  var plan=WEEK_PLANS[S.week-1],pat=PATTERNS[S.user.days]||PATTERNS[3],result=[],ti=0;
+  for(var i=0;i<7;i++){if(pat[i]&&ti<plan.length){result.push({rest:false,label:plan[ti].label,type:plan[ti].type,tip:plan[ti].tip,exkeys:plan[ti].ex,di:i});ti++;}else result.push({rest:true,di:i});}
   return result;
 }
-
-function isDone(week, dayIdx) {
-  return S.done.some(function(w){ return w.week === week && w.day === dayIdx; });
-}
-
-function renderDayChips() {
-  var days = buildDays();
-  var html = '';
-  for (var i = 0; i < days.length; i++) {
-    var d = days[i];
-    var done = !d.rest && isDone(S.week, i);
-    var cur = i === S.dayIdx && !d.rest;
-    var cls = 'daychip' + (cur?' cur':'') + (done&&!cur?' done':'') + (d.rest?' rest':'');
-    var onclick = d.rest ? '' : 'onclick="pickDay('+i+')"';
-    var dayNames = ['Mo','Di','Mi','Do','Fr','Sa','So'];
-    html += '<div class="'+cls+'" '+onclick+'>';
-    html += '<div class="chipname">'+dayNames[i]+'</div>';
-    html += '<div class="chiplbl">'+(d.rest?'Pause':d.label)+'</div>';
-    html += '<div class="chipcheck">'+(done&&!d.rest?'✅':d.rest?'😴':'○')+'</div>';
-    html += '</div>';
+function isDone(w,d){return S.done.some(function(x){return x.week===w&&x.day===d;});}
+function renderChips(){
+  var days=buildDays(),html='',dn=['Mo','Di','Mi','Do','Fr','Sa','So'];
+  for(var i=0;i<days.length;i++){
+    var d=days[i],done=!d.rest&&isDone(S.week,i),cur=i===S.dayIdx&&!d.rest;
+    html+='<div class="daychip'+(cur?' cur':'')+(done&&!cur?' done':'')+(d.rest?' rest':'')+'"'+(d.rest?'':' onclick="pickDay('+i+')"')+'>';
+    html+='<div class="chipname">'+dn[i]+'</div><div class="chiplbl">'+(d.rest?'Pause':d.label)+'</div>';
+    html+='<div class="chipcheck">'+(done&&!d.rest?'✅':d.rest?'😴':'○')+'</div></div>';
   }
-  document.getElementById('daychips').innerHTML = html;
+  document.getElementById('daychips').innerHTML=html;
+  var trainDays=buildDays().filter(function(d){return !d.rest;}),doneCt=0;
+  buildDays().forEach(function(d,i){if(!d.rest&&isDone(S.week,i))doneCt++;});
+  var pct=trainDays.length?Math.round(doneCt/trainDays.length*100):0;
+  document.getElementById('progfill').style.width=pct+'%';
+  document.getElementById('progpct').textContent=pct+'%';
+  document.getElementById('wklabel').textContent='Woche '+S.week+' von 4';
+}
+function pickDay(i){var days=buildDays();if(days[i]&&!days[i].rest){S.dayIdx=i;save();renderChips();renderWorkout();}}
+function chWeek(d){var nw=S.week+d;if(nw<1||nw>4)return;S.week=nw;var days=buildDays(),f=-1;for(var i=0;i<days.length;i++){if(!days[i].rest){f=i;break;}}S.dayIdx=f>=0?f:0;save();renderAll();}
 
-  // Progress
-  var days2 = buildDays();
-  var trainDays = days2.filter(function(d){ return !d.rest; });
-  var doneCt = 0;
-  for (var i = 0; i < days2.length; i++) {
-    if (!days2[i].rest && isDone(S.week, i)) doneCt++;
+function exKey(n){return S.week+'-'+S.dayIdx+'-'+n;}
+function isExDone(n){return !!S.exdone[exKey(n)];}
+function toggleEx(n){var k=exKey(n);if(S.exdone[k])delete S.exdone[k];else S.exdone[k]=true;save();renderWorkout();}
+function toggleAnim(id){var el=document.getElementById(id);if(el)el.classList.toggle('open');}
+
+var TYPE_BG={push:'push-bg',pull:'pull-bg',legs:'legs-bg',core:'core-bg'};
+
+function renderWorkout(){
+  var days=buildDays(),day=days[S.dayIdx],el=document.getElementById('wkcontent');
+  if(!day||day.rest){el.innerHTML='<div class="restview"><div class="restemoji">😴</div><h3>Ruhetag</h3><p>Aktive Erholung: spazieren, dehnen oder entspannen. Der Körper wächst in der Pause.</p></div>';return;}
+  var done=isDone(S.week,S.dayIdx),exList=day.exkeys.map(function(k){return getExLevel(k,S.user.level);}),doneCt=exList.filter(function(ex){return isExDone(ex.name);}).length,allDone=doneCt===exList.length;
+  var html='<div class="exhead"><h3>'+day.label+' – Tag '+(S.dayIdx+1)+'</h3><p>'+doneCt+' / '+exList.length+' erledigt · Übung antippen für Animation</p></div>';
+  html+='<div class="exlist">';
+  for(var i=0;i<exList.length;i++){
+    var ex=exList[i],xd=isExDone(ex.name),aid='anim-'+i;
+    var safeName=ex.name.replace(/'/g,"\\'");
+    html+='<div class="excard'+(xd?' done':'')+'" id="card-'+i+'">';
+    html+='<div class="excard-top" onclick="toggleAnim(\''+aid+'\'); event.stopPropagation();">';
+    html+='<div class="exthumb '+TYPE_BG[ex.type]+'">'+getAnim(ex.name).replace(/width="160"/,'width="54"').replace(/height="\d+"/,'height="54"').replace(/viewBox="[^"]+"/,'viewBox="20 10 120 75"')+'</div>';
+    html+='<div class="exinfo"><div class="exname">'+ex.name+'</div><div class="exdetail">'+ex.detail+'</div></div>';
+    html+='<div class="exright"><div class="exsets">'+ex.sets+'</div><div class="excheck">'+(xd?'✅':'○')+'</div></div>';
+    html+='</div>';
+    html+='<div class="exexpand" id="'+aid+'">';
+    html+='<div class="anim-wrap">'+getAnim(ex.name)+'<div class="anim-label">Bewegungsablauf</div></div>';
+    html+='<div class="ex-tip">💡 '+ex.animtip+'</div>';
+    html+='<button style="margin-top:0.7rem;width:100%;background:'+(xd?'#1a1a1a':'#22c55e')+';color:'+(xd?'#888':'#000')+';border:'+(xd?'1px solid rgba(255,255,255,0.1)':'none')+';border-radius:8px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;" onclick="toggleEx(\''+safeName+'\')">'+(xd?'Als offen markieren':'✓ Erledigt')+'</button>';
+    html+='</div></div>';
   }
-  var pct = trainDays.length ? Math.round(doneCt / trainDays.length * 100) : 0;
-  document.getElementById('progfill').style.width = pct + '%';
-  document.getElementById('progpct').textContent = pct + '%';
-  document.getElementById('wklabel').textContent = 'Woche ' + S.week + ' von 4';
-}
-
-function pickDay(i) {
-  var days = buildDays();
-  if (days[i] && !days[i].rest) { S.dayIdx = i; save(); renderDayChips(); renderWorkout(); }
-}
-
-function chWeek(d) {
-  var nw = S.week + d;
-  if (nw < 1 || nw > 4) return;
-  S.week = nw;
-  var days = buildDays();
-  var first = -1;
-  for (var i = 0; i < days.length; i++) { if (!days[i].rest) { first = i; break; } }
-  S.dayIdx = first >= 0 ? first : 0;
-  save();
-  renderAll();
-}
-
-var EMOJIS = { push:'💪', pull:'🙌', legs:'🦵', core:'⚡' };
-
-function exKey(name) { return S.week + '-' + S.dayIdx + '-' + name; }
-function isExDone(name) { return !!S.exdone[exKey(name)]; }
-
-function toggleEx(name) {
-  var k = exKey(name);
-  if (S.exdone[k]) delete S.exdone[k]; else S.exdone[k] = true;
-  save();
-  renderWorkout();
-}
-
-function renderWorkout() {
-  var days = buildDays();
-  var day = days[S.dayIdx];
-  var el = document.getElementById('wkcontent');
-
-  if (!day || day.rest) {
-    el.innerHTML = '<div class="restview"><div class="restemoji">😴</div><h3>Ruhetag</h3><p>Aktive Erholung: Spazieren, Dehnen oder einfach ausruhen. Der Körper wächst in der Pause.</p></div>';
-    return;
-  }
-
-  var done = isDone(S.week, S.dayIdx);
-  var exList = day.exkeys.map(function(k){ return getExWithLevel(k, S.user.level); });
-  var doneCt = exList.filter(function(ex){ return isExDone(ex[0]); }).length;
-  var allDone = doneCt === exList.length;
-
-  var html = '<div class="exhead"><h3>' + day.label + ' – Tag '+(S.dayIdx+1)+'</h3>';
-  html += '<p>' + doneCt + ' / ' + exList.length + ' Übungen erledigt</p></div>';
-  html += '<div class="exlist">';
-  for (var i = 0; i < exList.length; i++) {
-    var ex = exList[i];
-    var exdone = isExDone(ex[0]);
-    html += '<div class="exrow'+(exdone?' done':'')+'" onclick="toggleEx(\''+ex[0].replace(/'/g,"\\'")+'\')">'+
-      '<div class="exicon '+ex[3]+'-ic">'+EMOJIS[ex[3]]+'</div>'+
-      '<div style="flex:1"><div class="exname">'+ex[0]+'</div><div class="exdetail">'+ex[1]+'</div></div>'+
-      '<div class="exright"><div class="exsets">'+ex[2]+'</div><div class="excheck">'+(exdone?'✅':'○')+'</div></div>'+
-      '</div>';
-  }
-  html += '</div>';
-  html += '<div class="tipbox"><div class="tiptag">💡 Tipp</div><div class="tiptext">'+day.tip+'</div></div>';
-
-  if (done) {
-    html += '<div class="donebanner"><h4>Einheit abgeschlossen! 🎉</h4><p>Super Arbeit. Erhol dich gut!</p></div>';
-    html += '<button class="undonebtn" onclick="undoWorkout()">Als offen markieren</button>';
+  html+='</div>';
+  html+='<div class="tipbox"><div class="tiptag">💡 Trainer-Tipp</div><div class="tiptext">'+day.tip+'</div></div>';
+  if(done){
+    html+='<div class="donebanner"><h4>Einheit abgeschlossen! 🎉</h4><p>Super Arbeit. Erhol dich gut!</p></div>';
+    html+='<button class="undonebtn" onclick="undoWk()">Als offen markieren</button>';
   } else {
-    html += '<button class="completebtn"'+(allDone?'':' disabled')+' onclick="completeWk()">Einheit abschließen ✓</button>';
+    html+='<button class="completebtn"'+(allDone?'':' disabled')+' onclick="completeWk()">Einheit abschließen ✓</button>';
   }
-  html += '<div style="height:1.5rem"></div>';
-  el.innerHTML = html;
+  html+='<div style="height:1.5rem"></div>';
+  el.innerHTML=html;
 }
 
-function completeWk() {
-  var days = buildDays();
-  var day = days[S.dayIdx];
-  if (!isDone(S.week, S.dayIdx)) {
-    S.done.push({ date: dstr(new Date()), week: S.week, day: S.dayIdx, label: day.label });
-    save();
-  }
-  renderStats(); renderDayChips(); renderWorkout();
+function completeWk(){var days=buildDays(),day=days[S.dayIdx];if(!isDone(S.week,S.dayIdx)){S.done.push({date:ds(new Date()),week:S.week,day:S.dayIdx,label:day.label});save();}renderStats();renderChips();renderWorkout();}
+function undoWk(){S.done=S.done.filter(function(w){return!(w.week===S.week&&w.day===S.dayIdx);});save();renderStats();renderChips();renderWorkout();}
+
+function showTab(tab,el){
+  document.getElementById('tab-workout').style.display=tab==='workout'?'block':'none';
+  document.getElementById('tab-history').style.display=tab==='history'?'block':'none';
+  document.querySelectorAll('.tabitem').forEach(function(t){t.classList.remove('active');});
+  if(el)el.classList.add('active');else document.querySelectorAll('.tabitem')[tab==='workout'?0:1].classList.add('active');
+  document.getElementById('nav-workout').className='navitem'+(tab==='workout'?' active':'');
+  document.getElementById('nav-history').className='navitem'+(tab==='history'?' active':'');
+  if(tab==='history')renderHistory();
 }
-function undoWorkout() {
-  S.done = S.done.filter(function(w){ return !(w.week===S.week && w.day===S.dayIdx); });
-  save(); renderStats(); renderDayChips(); renderWorkout();
+function renderHistory(){
+  var el=document.getElementById('histlist');
+  if(!S.done.length){el.innerHTML='<div class="empty">Noch keine Einheiten.<br>Starte dein erstes Workout! 💪</div>';return;}
+  el.innerHTML=S.done.slice().reverse().map(function(w){return'<div class="histitem"><div class="histdot"></div><div style="flex:1"><div class="histtitle">Woche '+w.week+' · '+w.label+'</div><div class="histdate">'+fd(w.date)+'</div></div><div class="histbadge">✓</div></div>';}).join('');
 }
 
-// ── HISTORY ──────────────────────────────────
-function renderHistory() {
-  var el = document.getElementById('histlist');
-  if (!S.done.length) { el.innerHTML = '<div class="empty">Noch keine Einheiten.<br>Starte dein erstes Workout! 💪</div>'; return; }
-  var sorted = S.done.slice().reverse();
-  el.innerHTML = sorted.map(function(w){
-    return '<div class="histitem"><div class="histdot"></div><div style="flex:1"><div class="histtitle">Woche '+w.week+' · '+w.label+'</div><div class="histdate">'+fdate(w.date)+'</div></div><div class="histbadge">✓ Done</div></div>';
-  }).join('');
-}
-
-// ── TABS ─────────────────────────────────────
-function showTab(tab, el) {
-  document.getElementById('tab-workout').style.display = tab==='workout' ? 'block' : 'none';
-  document.getElementById('tab-history').style.display = tab==='history' ? 'block' : 'none';
-  document.querySelectorAll('.tabitem').forEach(function(t){ t.classList.remove('active'); });
-  if (el) el.classList.add('active');
-  else {
-    var items = document.querySelectorAll('.tabitem');
-    items[tab==='workout'?0:1].classList.add('active');
-  }
-  document.getElementById('nav-workout').className = 'navitem'+(tab==='workout'?' active':'');
-  document.getElementById('nav-history').className = 'navitem'+(tab==='history'?' active':'');
-  if (tab==='history') renderHistory();
-}
-
-// ── MODAL ────────────────────────────────────
-function openModal() {
-  var u = S.user;
-  document.getElementById('mname').textContent = u.name;
-  document.getElementById('mlevel').textContent = {beginner:'🌱 Anfänger',intermediate:'🔥 Fortgeschritten',advanced:'⚡ Experte'}[u.level];
-  document.getElementById('mdays').textContent = u.days + ' Tage';
-  var row = document.getElementById('mdaybtns');
-  row.innerHTML = [2,3,4,5,6].map(function(d){
-    return '<div class="daybtn'+(d===u.days?' sel':'')+'" data-v="'+d+'" onclick="setDays('+d+')">'+d+'</div>';
-  }).join('');
+function openModal(){
+  var u=S.user;
+  document.getElementById('mname').textContent=u.name;
+  document.getElementById('mlevel').textContent={beginner:'🌱 Anfänger',intermediate:'🔥 Fortgeschritten',advanced:'⚡ Experte'}[u.level];
+  document.getElementById('mdays').textContent=u.days+' Tage';
+  document.getElementById('mdaybtns').innerHTML=[2,3,4,5,6].map(function(d){return'<div class="daybtn'+(d===u.days?' sel':'')+'" data-v="'+d+'" onclick="setDays('+d+')">'+d+'</div>';}).join('');
   document.getElementById('modal').classList.add('open');
 }
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
-function closeModalOut(e) { if (e.target.id==='modal') closeModal(); }
-function setDays(d) {
-  S.user.days = d;
-  save();
-  document.getElementById('mdays').textContent = d + ' Tage';
-  document.querySelectorAll('#mdaybtns .daybtn').forEach(function(b){ b.classList.toggle('sel', parseInt(b.dataset.v)===d); });
-  renderDayChips(); renderWorkout();
-}
-function changeName() {
-  var n = prompt('Neuer Name:', S.user.name);
-  if (n && n.trim()) { S.user.name = n.trim(); save(); document.getElementById('mname').textContent = S.user.name; renderAll(); }
-}
-function resetAll() {
-  if (!confirm('Alle Daten wirklich löschen?')) return;
-  try { localStorage.removeItem('cali2'); } catch(e) {}
-  location.reload();
-}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+function closeModalOut(e){if(e.target.id==='modal')closeModal();}
+function setDays(d){S.user.days=d;save();document.getElementById('mdays').textContent=d+' Tage';document.querySelectorAll('#mdaybtns .daybtn').forEach(function(b){b.classList.toggle('sel',parseInt(b.dataset.v)===d);});renderChips();renderWorkout();}
+function changeName(){var n=prompt('Neuer Name:',S.user.name);if(n&&n.trim()){S.user.name=n.trim();save();document.getElementById('mname').textContent=S.user.name;renderAll();}}
+function resetAll(){if(!confirm('Alle Daten wirklich löschen?'))return;try{localStorage.removeItem('cali3');}catch(e){}location.reload();}
 
-// ── UTILS ────────────────────────────────────
-function dstr(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function fdate(s) { return new Date(s).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'}); }
+function ds(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fd(s){return new Date(s).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});}
 
-// ── BOOT ─────────────────────────────────────
 load();
-if (S.user && S.user.name) {
-  launchApp();
-} else {
-  document.getElementById('setup-screen').classList.add('show');
-}
+if(S.user&&S.user.name){launch();}else{document.getElementById('setup-screen').classList.add('show');}
 </script>
 </body>
 </html>
