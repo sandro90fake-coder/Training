@@ -135,6 +135,25 @@ input[type=text]::placeholder{color:#444}
 .mtb{background:#242424;border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:8px 4px;text-align:center;cursor:pointer;color:#777;font-size:13px}
 .mtb.on{border-color:#22c55e;background:rgba(34,197,94,.12);color:#22c55e;font-weight:700}
 
+
+/* ── SET-BY-SET CARDS ── */
+.setcard-wrap{margin:.5rem 0}
+.set-dots{display:flex;gap:6px;margin-bottom:.75rem;flex-wrap:wrap}
+.set-dot{width:32px;height:32px;border-radius:50%;border:2px solid #333;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#555;transition:all .2s}
+.set-dot.done{background:#22c55e;border-color:#22c55e;color:#000}
+.set-dot.active{border-color:#22c55e;color:#22c55e}
+.set-action-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:.5rem 0}
+.set-label{font-size:13px;color:#888}
+.set-start-btn{background:#22c55e;color:#000;border:none;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.set-confirm-btn{background:#22c55e;color:#000;border:none;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.set-stop-btn{width:100%;background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3);border-radius:8px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:.5rem}
+.set-skip-btn{width:100%;background:#1a1a1a;color:#888;border:1px solid #333;border-radius:8px;padding:9px;font-size:13px;cursor:pointer;margin-top:.5rem}
+.set-phase-label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;font-weight:600}
+.set-phase-label.prep{color:#f59e0b}
+.set-phase-label.go{color:#22c55e}
+.set-phase-label.rest{color:#f59e0b}
+.set-alldone{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:8px;padding:.6rem .8rem;font-size:13px;color:#22c55e;text-align:center;margin-top:.3rem}
+
 /* ── TIMER ── */
 .timer-wrap{background:#111;border-radius:12px;padding:1rem;margin:.5rem 0;text-align:center}
 .timer-phase{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#888;margin-bottom:.3rem}
@@ -155,6 +174,36 @@ input[type=text]::placeholder{color:#444}
 /* Satz-Info */
 .sets-info{background:#1e1e1e;border-radius:8px;padding:.6rem .8rem;margin:.4rem 0;font-size:12px;color:#888;line-height:1.6}
 .sets-info b{color:#f0f0f0}
+
+/* ── TIMER & SETS ── */
+.sets-wrap{padding:.1rem 0 .4rem}
+.set-row{display:flex;align-items:center;gap:10px;padding:.5rem .9rem;border-bottom:1px solid rgba(255,255,255,0.05)}
+.set-row:last-child{border-bottom:none}
+.set-num{font-size:12px;color:#555;flex-shrink:0;width:48px}
+.set-status{width:28px;height:28px;border-radius:50%;border:2px solid #333;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;cursor:pointer;transition:all .2s}
+.set-status.done{background:#22c55e;border-color:#22c55e;color:#000}
+.set-status.active{border-color:#22c55e;color:#22c55e}
+.set-desc{flex:1;font-size:13px;color:#aaa}
+.set-btn{background:#22c55e;color:#000;border:none;border-radius:7px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.set-btn.pause-btn{background:#1a1a1a;color:#22c55e;border:1px solid #22c55e}
+.set-btn.skip-btn{background:transparent;color:#555;border:1px solid #333;font-weight:400}
+.timer-block{background:#0a0a0a;border-radius:10px;padding:.9rem;margin:.2rem .9rem .4rem;text-align:center;border:1px solid rgba(255,255,255,0.07)}
+.timer-phase-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.3rem}
+.timer-phase-lbl.prep{color:#f59e0b}
+.timer-phase-lbl.go{color:#22c55e}
+.timer-phase-lbl.rest{color:#3b82f6}
+.timer-big{font-size:56px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;margin:.1rem 0}
+.timer-big.prep{color:#f59e0b}
+.timer-big.go{color:#22c55e}
+.timer-big.rest{color:#3b82f6}
+.timer-sub{font-size:12px;color:#555;margin-top:.3rem}
+.timer-ring-wrap{margin:.4rem auto;width:80px;height:80px;position:relative}
+.timer-ring-wrap svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+.timer-ring-wrap .ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700}
+.timer-ctrl{display:flex;gap:7px;margin-top:.6rem;justify-content:center}
+.timer-ctrl button{padding:9px 18px;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer}
+.tbtn-stop{background:#242424;color:#888}
+.tbtn-pause{background:#1a1a1a;color:#f59e0b;border:1px solid #f59e0b}
 </style>
 </head>
 <body>
@@ -514,19 +563,244 @@ function tog(i){
   if(!op)e.classList.add('open');
 }
 
+// ── TIMER ENGINE ──────────────────────────
+var TM={interval:null,seconds:0,total:0,phase:'',cb:null,paused:false};
+
+function tmClear(){
+  if(TM.interval){clearInterval(TM.interval);TM.interval=null;}
+}
+function tmStart(seconds, phase, onDone){
+  tmClear();
+  TM.seconds=seconds; TM.total=seconds; TM.phase=phase; TM.cb=onDone; TM.paused=false;
+  tmTick();
+  TM.interval=setInterval(tmTick,1000);
+}
+function tmTick(){
+  var el=document.getElementById('tm-big');
+  var ring=document.getElementById('tm-ring');
+  var lbl=document.getElementById('tm-lbl');
+  var sub=document.getElementById('tm-sub');
+  if(!el){tmClear();return;}
+  var s=TM.seconds;
+  el.textContent=s;
+  el.className='ring-num';
+  if(lbl) lbl.textContent=TM.phase==='prep'?'Bereit machen…':TM.phase==='go'?'Los!':'Pause';
+  if(sub){
+    if(TM.phase==='rest') sub.textContent='Nächster Satz in '+s+' Sek.';
+    else if(TM.phase==='go') sub.textContent=s+' Sek. verbleibend';
+    else sub.textContent='Startet in '+s+' Sek.';
+  }
+  // ring
+  if(ring){
+    var pct=TM.total>0?(TM.seconds/TM.total):1;
+    var r=34,circ=2*Math.PI*r;
+    var dash=circ*pct;
+    var color=TM.phase==='prep'?'#f59e0b':TM.phase==='go'?'#22c55e':'#3b82f6';
+    ring.style.strokeDasharray=dash+' '+circ;
+    ring.style.stroke=color;
+    el.style.color=color;
+  }
+  // voice announcements
+  var speak=false;
+  if(TM.phase==='prep'&&s===5) tmSay('Bereit machen');
+  if(TM.phase==='go'&&s===TM.total) tmSay('Los');
+  if(TM.phase==='go'&&(s===10||s===5)) tmSay(s+' Sekunden');
+  if(TM.phase==='go'&&s===3) tmSay('Drei');
+  if(TM.phase==='go'&&s===2) tmSay('Zwei');
+  if(TM.phase==='go'&&s===1) tmSay('Eins');
+  if(TM.phase==='rest'&&s===10) tmSay('Zehn Sekunden Pause');
+  if(TM.phase==='rest'&&s===5) tmSay('Gleich weiter');
+  if(TM.phase==='rest'&&s===3) tmSay('Drei');
+  if(TM.phase==='rest'&&s===2) tmSay('Zwei');
+  if(TM.phase==='rest'&&s===1) tmSay('Eins');
+  if(TM.seconds<=0){
+    tmClear();
+    tmSay(TM.phase==='go'?'Fertig! Gute Arbeit!':'Los gehts');
+    if(TM.cb) setTimeout(TM.cb,600);
+    return;
+  }
+  TM.seconds--;
+}
+function tmSay(txt){
+  try{
+    if(!window.speechSynthesis)return;
+    window.speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(txt);
+    u.lang='de-DE'; u.rate=1.1; u.volume=1;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+function tmPause(){
+  if(TM.paused){TM.paused=false;TM.interval=setInterval(tmTick,1000);}
+  else{TM.paused=true;tmClear();}
+  var pb=document.getElementById('tm-pause');
+  if(pb) pb.textContent=TM.paused?'▶ Weiter':'⏸ Pause';
+}
+function tmStop(){tmClear();rw();}
+
+function tmBlockHTML(phase,totalSec){
+  var color=phase==='prep'?'#f59e0b':phase==='go'?'#22c55e':'#3b82f6';
+  var lbl=phase==='prep'?'Bereit machen…':phase==='go'?'Los!':'Pause';
+  var r=34,circ=2*Math.PI*r;
+  return '<div class="timer-block">'+
+    '<div class="timer-phase-lbl '+phase+'" id="tm-lbl">'+lbl+'</div>'+
+    '<div class="timer-ring-wrap">'+
+      '<svg width="80" height="80" viewBox="0 0 80 80">'+
+        '<circle cx="40" cy="40" r="'+r+'" fill="none" stroke="#222" stroke-width="6"/>'+
+        '<circle id="tm-ring" cx="40" cy="40" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+2*Math.PI*r+' '+2*Math.PI*r+'"/>'+
+      '</svg>'+
+      '<div class="ring-num" id="tm-big" style="color:'+color+'">'+totalSec+'</div>'+
+    '</div>'+
+    '<div class="timer-sub" id="tm-sub">'+(phase==='prep'?'Startet in '+totalSec+' Sek.':'')+'</div>'+
+    '<div class="timer-ctrl">'+
+      '<button class="tbtn-pause" id="tm-pause" onclick="tmPause()">⏸ Pause</button>'+
+      '<button class="tbtn-stop" onclick="tmStop()">✕ Abbrechen</button>'+
+    '</div>'+
+  '</div>';
+}
+
+// ── SET TRACKER ────────────────────────────
+// setStates[exIdx] = { doneSets: 0, totalSets: N, secPerSet: S|null, restSec: R, active: false }
+var SET_STATE = {};
+var PREP_SEC = 5;
+var REST_SEC = 60; // default rest between sets
+
+function parseExSets(sStr){
+  // "3×10" → {sets:3, reps:10, timeSec:null}
+  // "3×30s" → {sets:3, reps:null, timeSec:30}
+  var m=sStr.match(/(\d+)×(\d+)(s?)/);
+  if(!m) return {sets:3,reps:10,timeSec:null};
+  var sets=+m[1], val=+m[2], isSec=m[3]==='s';
+  return {sets:sets, reps:isSec?null:val, timeSec:isSec?val:null};
+}
+
+function initSetState(idx, sStr){
+  var p=parseExSets(sStr);
+  SET_STATE[idx]={
+    done:0, total:p.sets, timeSec:p.timeSec, reps:p.reps,
+    phase:'idle' // idle | prep | go | rest | finished
+  };
+}
+
+function setHTML(idx, exName, sStr){
+  var p=parseExSets(sStr);
+  var isTime=!!p.timeSec;
+  var st=SET_STATE[idx]||{done:0,total:p.sets,phase:'idle'};
+  var h='<div class="sets-wrap" id="sw'+idx+'">';
+  // Explanation line
+  h+='<div style="padding:.5rem .9rem .3rem;font-size:12px;color:#666">';
+  h+=p.sets+' Sätze'+(isTime?' × '+p.timeSec+' Sek.':' × '+p.reps+' Wdh.')+' · Pause: '+REST_SEC+' Sek.</div>';
+
+  if(st.phase==='prep'||st.phase==='go'||st.phase==='rest'){
+    // show timer
+    var ph=st.phase==='rest'?'rest':st.phase;
+    var sec=st.phase==='prep'?PREP_SEC:st.phase==='go'?p.timeSec:REST_SEC;
+    h+=tmBlockHTML(ph, sec);
+    h+='</div>';
+    return h;
+  }
+
+  // show set rows
+  for(var i=0;i<p.sets;i++){
+    var isDone=i<st.done;
+    var isNext=i===st.done&&st.phase!=='finished';
+    h+='<div class="set-row">';
+    h+='<span class="set-num">Satz '+(i+1)+'</span>';
+    h+='<div class="set-status'+(isDone?' done':isNext?' active':'')+'">'+(isDone?'✓':isNext?'●':'')+'</div>';
+    if(isTime){
+      h+='<span class="set-desc">'+(isDone?'Erledigt':isNext?p.timeSec+' Sek.':p.timeSec+' Sek.')+'</span>';
+    } else {
+      h+='<span class="set-desc">'+(isDone?'Erledigt':p.reps+' Wiederholungen')+'</span>';
+    }
+    if(isNext&&st.phase==='idle'){
+      if(isTime){
+        h+='<button class="set-btn" onclick="startSetTimer('+idx+',''+exName.replace(/'/g,"\'")+'',''+sStr+'')">▶ Start</button>';
+      } else {
+        h+='<button class="set-btn" onclick="confirmSet('+idx+',''+exName.replace(/'/g,"\'")+'',''+sStr+'')">✓ Fertig</button>';
+      }
+    }
+    h+='</div>';
+  }
+  if(st.phase==='finished'||st.done>=p.sets){
+    h+='<div style="padding:.4rem .9rem"><div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:8px;padding:.5rem .8rem;font-size:13px;color:#22c55e;text-align:center">Alle Sätze geschafft! ✅</div></div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+function refreshSetBlock(idx, exName, sStr){
+  var el=document.getElementById('sw'+idx);
+  if(el) el.outerHTML=setHTML(idx,exName,sStr);
+}
+
+function startSetTimer(idx, exName, sStr){
+  var p=parseExSets(sStr);
+  var st=SET_STATE[idx];
+  if(!st)return;
+  st.phase='prep';
+  refreshSetBlock(idx,exName,sStr);
+  tmStart(PREP_SEC,'prep',function(){
+    st.phase='go';
+    refreshSetBlock(idx,exName,sStr);
+    tmStart(p.timeSec,'go',function(){
+      confirmSet(idx,exName,sStr);
+    });
+  });
+}
+
+function confirmSet(idx, exName, sStr){
+  var p=parseExSets(sStr);
+  var st=SET_STATE[idx];
+  if(!st)return;
+  tmClear();
+  st.done++;
+  if(st.done>=st.total){
+    st.phase='finished';
+    refreshSetBlock(idx,exName,sStr);
+    // auto-complete exercise
+    var k=S.w+'-'+S.di+'-'+exName;
+    S.exd[k]=true; sv();
+    // refresh done count in header
+    var days=bd(),day=days[S.di];
+    var count=TIME_COUNT[S.u.tm]||6;
+    var exs=pickExercises(S.w,S.di,day.focus,count,S.u.lv);
+    var dc=exs.filter(function(e){return ied(e.n);}).length;
+    var eh=document.querySelector('.eh p');
+    if(eh) eh.textContent=dc+' / '+exs.length+' erledigt';
+    // check if all done
+    var cbtn=document.getElementById('main-cbtn');
+    if(cbtn&&dc===exs.length){cbtn.disabled=false;}
+    return;
+  }
+  // start rest timer
+  st.phase='rest';
+  refreshSetBlock(idx,exName,sStr);
+  tmStart(REST_SEC,'rest',function(){
+    st.phase='idle';
+    refreshSetBlock(idx,exName,sStr);
+    tmSay('Nächster Satz. Los!');
+  });
+}
+
+
 function rw(){
   var days=bd(),day=days[S.di],el=document.getElementById('wc');
   if(!day||day.rest){
     el.innerHTML='<div class="rv"><div class="re">😴</div><h3>Ruhetag</h3><p>Spazieren, dehnen oder entspannen. Der Körper wächst in der Pause.</p></div>';
     return;
   }
+  tmClear();
+  SET_STATE={};
   var count=TIME_COUNT[S.u.tm]||6;
   var exs=pickExercises(S.w,S.di,day.focus,count,S.u.lv);
+  // init set states
+  for(var i=0;i<exs.length;i++) initSetState(i,exs[i].s);
   var fin=isd(S.w,S.di);
   var dc=exs.filter(function(e){return ied(e.n);}).length;
   var all=dc===exs.length;
   var tipIdx=S.di % WEEK_TIPS[S.w-1].length;
   var tip=WEEK_TIPS[S.w-1][tipIdx];
+  var p=parseExSets(exs[0]?exs[0].s:'3×10');
 
   var h='<div class="eh">';
   h+='<h3>'+day.label+'</h3>';
@@ -537,23 +811,33 @@ function rw(){
   for(var i=0;i<exs.length;i++){
     var ex=exs[i],xd=ied(ex.n);
     var sn=ex.n.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    h+='<div class="ec'+(xd?' fin':'')+'">';
+    var p2=parseExSets(ex.s);
+    var isTime=!!p2.timeSec;
+    h+='<div class="ec'+(xd?' fin':'')+'">'; 
+    // Top row
     h+='<div class="ect" onclick="tog('+i+')">';
     h+='<div class="eth"><img src="'+thumb(ex.n)+'" alt="" loading="lazy" onerror="this.style.display=\'none\'"><div class="etp">▶</div></div>';
-    h+='<div class="ei"><div class="en">'+ex.n+'</div><div class="ed">'+ex.d+'</div></div>';
-    h+='<div class="er"><div class="es">'+ex.s+'</div><div class="eck">'+(xd?'✅':'▾')+'</div></div>';
+    h+='<div class="ei">';
+    h+='<div class="en">'+ex.n+'</div>';
+    h+='<div class="ed">'+ex.d+'</div>';
     h+='</div>';
+    h+='<div class="er">';
+    h+='<div class="es">'+ex.s+'</div>';
+    h+='<div style="font-size:10px;color:#555;margin-top:2px">'+(isTime?'⏱ Zeit':'🔢 Wdh.')+'</div>';
+    h+='<div class="eck">'+(xd?'✅':'▾')+'</div>';
+    h+='</div>';
+    h+='</div>';
+    // Expandable
     h+='<div class="exp" id="exp'+i+'">';
-    h+='<div class="vw" id="vw'+i+'"><div class="vp" onclick="lv2('+i+',\''+sn+'\')">';
-    h+='<div class="vpb">▶</div><p>'+ex.n+' – Tutorial</p><p style="font-size:11px;color:#444">Zum Abspielen tippen</p>';
-    h+='</div></div>';
-    h+='<div class="ea">';
-    h+=buildSetsInfo(ex);
-    h+=buildTimerHTML(i,ex);
-    h+='<div class="etip"><span>💡 </span>'+ex.tip+'</div>';
+    // Video
+    h+='<div class="vw" id="vw'+i+'"><div class="vp" onclick="lv2('+i+',\''+sn+'\')"><div class="vpb">▶</div><p>'+ex.n+' – Tutorial</p><p style="font-size:11px;color:#444">Tippen zum Abspielen</p></div></div>';
+    // Set tracker
+    h+=setHTML(i,ex.n,ex.s);
+    // Tip
+    h+='<div class="ea"><div class="etip"><span>💡 </span>'+ex.tip+'</div>';
     if(xd) h+='<button class="ubtn2" onclick="tex(\''+sn+'\')">↩ Als offen markieren</button>';
-    else h+='<button class="dbtn" onclick="tex(\''+sn+'\')">✓ Erledigt</button>';
-    h+='</div></div></div>';
+    h+='</div>';
+    h+='</div></div>';
   }
   h+='</div>';
   h+='<div class="tbox"><div class="tt">💡 Trainer-Tipp</div><div class="tx">'+tip+'</div></div>';
@@ -561,7 +845,7 @@ function rw(){
     h+='<div class="done-b"><h4>Einheit abgeschlossen! 🎉</h4><p>'+S.u.tm+' Minuten – gut gemacht!</p></div>';
     h+='<button class="ucbtn" onclick="und()">Als offen markieren</button>';
   } else {
-    h+='<button class="cbtn"'+(all?'':' disabled')+' onclick="comp()">Einheit abschließen ✓</button>';
+    h+='<button class="cbtn" id="main-cbtn"'+(all?'':' disabled')+' onclick="comp()">Einheit abschließen ✓</button>';
   }
   h+='<div style="height:1.5rem"></div>';
   el.innerHTML=h;
@@ -613,11 +897,19 @@ function fd(s){try{return new Date(s).toLocaleDateString('de-DE',{weekday:'long'
 
 
 // ── TIMER ENGINE ──────────────────────────
-var TMR = {interval:null,total:0,remaining:0,phase:'idle',sets:1,currentSet:1,elId:''};
+// State per exercise card: how many sets done
+var SET_STATE = {}; // key: 'exIdx' -> {done: N, total: N, secs: N, restSecs: 60}
+
+var TMR = {interval:null, remaining:0, phase:'idle', elId:''};
+// phase: idle | prep | work | rest | alldone
 
 function parseTime(s) {
   var m = s.match(/^(\d+)×(\d+)s$/);
   return m ? {sets:parseInt(m[1]), secs:parseInt(m[2])} : null;
+}
+function parseSets(s) {
+  var m = s.match(/^(\d+)×(\d+)$/);
+  return m ? {sets:parseInt(m[1]), reps:parseInt(m[2])} : null;
 }
 
 function speak(text) {
@@ -635,94 +927,208 @@ function stopTimer() {
   try { window.speechSynthesis.cancel(); } catch(e) {}
 }
 
-function renderTimerEl() {
-  var el = document.getElementById(TMR.elId);
+// ── RING RENDERER ──
+function renderRing(elId, remaining, total, phase) {
+  var el = document.getElementById(elId);
   if (!el) return;
-  var t = TMR.remaining;
-  var display = TMR.phase === 'done' ? '✓' : String(t);
-  var phaseLabel = {prep:'Bereit machen…', go:'Satz '+TMR.currentSet+' von '+TMR.sets, done:'Fertig! 🎉', idle:'⏱ Bereit'}[TMR.phase];
-  var pct = TMR.phase === 'go' ? (1 - t / TMR.total) : (TMR.phase === 'prep' ? (1 - t / 5) : 0);
   var r = 38, circ = 2 * Math.PI * r;
+  var pct = total > 0 ? (1 - remaining / total) : 0;
   var offset = circ * (1 - pct);
-  var col = TMR.phase === 'prep' ? '#f59e0b' : '#22c55e';
-  var textCol = TMR.phase === 'prep' ? '#f59e0b' : (TMR.phase === 'done' ? '#22c55e' : '#f0f0f0');
+  var col = phase === 'rest' ? '#f59e0b' : '#22c55e';
+  var textCol = phase === 'rest' ? '#f59e0b' : '#f0f0f0';
+  var display = remaining > 0 ? String(remaining) : '✓';
   el.innerHTML =
-    '<div class="timer-phase '+(TMR.phase==='prep'?'prep':(TMR.phase==='go'||TMR.phase==='done'?'go':''))+'">'+phaseLabel+'</div>' +
-    '<svg class="timer-ring" width="88" height="88" viewBox="0 0 88 88">' +
+    '<svg width="88" height="88" viewBox="0 0 88 88">' +
       '<circle cx="44" cy="44" r="38" fill="none" stroke="#222" stroke-width="6"/>' +
       '<circle cx="44" cy="44" r="38" fill="none" stroke="'+col+'" stroke-width="6"' +
         ' stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'"' +
-        ' stroke-linecap="round" transform="rotate(-90 44 44)" style="transition:stroke-dashoffset .9s linear"/>' +
+        ' stroke-linecap="round" transform="rotate(-90 44 44)" style="transition:stroke-dashoffset .95s linear"/>' +
       '<text x="44" y="50" text-anchor="middle" fill="'+textCol+'" font-size="22" font-weight="700">'+display+'</text>' +
     '</svg>';
 }
 
-function startTimer(elId, secs, sets, name) {
+// ── FULL CARD RENDERER ──
+function renderSetCard(idx) {
+  var el = document.getElementById('setcard'+idx);
+  if (!el) return;
+  var st = SET_STATE[idx];
+  if (!st) return;
+
+  var done = st.done;
+  var total = st.total;
+  var secs = st.secs;
+  var restSecs = st.restSecs;
+  var isTimed = secs > 0;
+  var allDone = done >= total;
+
+  // Build sets row
+  var setsHtml = '<div class="set-dots">';
+  for (var i = 0; i < total; i++) {
+    setsHtml += '<div class="set-dot '+(i < done ? 'done' : i === done ? 'active' : '')+'">'+(i+1)+'</div>';
+  }
+  setsHtml += '</div>';
+
+  var phase = TMR.phase;
+  var isActive = (TMR.elId === 'ring'+idx);
+
+  if (allDone) {
+    el.innerHTML = setsHtml +
+      '<div class="set-alldone">✅ Alle '+total+' Sätze abgeschlossen!</div>';
+    return;
+  }
+
+  var currentSet = done + 1;
+  var html = setsHtml;
+
+  if (!isActive || phase === 'idle') {
+    // Show start button for current set
+    if (isTimed) {
+      html += '<div class="set-action-row">' +
+        '<div class="set-label">Satz '+currentSet+' von '+total+' &nbsp;·&nbsp; '+secs+'s</div>' +
+        '<button class="set-start-btn" onclick="beginSet('+idx+')">▶ Satz starten</button>' +
+      '</div>';
+    } else {
+      html += '<div class="set-action-row">' +
+        '<div class="set-label">Satz '+currentSet+' von '+total+' &nbsp;·&nbsp; '+st.reps+' Wdh.</div>' +
+        '<button class="set-confirm-btn" onclick="confirmSet('+idx+')">✓ Satz erledigt</button>' +
+      '</div>';
+    }
+  } else if (isActive && phase === 'prep') {
+    html += '<div class="set-phase-label prep">Bereit machen…</div>' +
+      '<div id="ring'+idx+'"></div>';
+    renderRing('ring'+idx, TMR.remaining, 5, 'prep');
+  } else if (isActive && phase === 'work') {
+    html += '<div class="set-phase-label go">Satz '+currentSet+' – halte durch!</div>' +
+      '<div id="ring'+idx+'"></div>' +
+      '<button class="set-stop-btn" onclick="skipToConfirm('+idx+')">Satz beenden ✓</button>';
+    renderRing('ring'+idx, TMR.remaining, secs, 'work');
+  } else if (isActive && phase === 'rest') {
+    html += '<div class="set-phase-label rest">Erholung – Satz '+done+' von '+total+' ✓</div>' +
+      '<div id="ring'+idx+'"></div>' +
+      '<button class="set-skip-btn" onclick="skipRest('+idx+')">Pause überspringen ⏭</button>';
+    renderRing('ring'+idx, TMR.remaining, restSecs, 'rest');
+  }
+
+  el.innerHTML = html;
+}
+
+function beginSet(idx) {
+  var st = SET_STATE[idx];
+  if (!st || st.done >= st.total) return;
   stopTimer();
-  TMR.elId = elId; TMR.total = secs; TMR.sets = sets; TMR.currentSet = 1;
-  TMR.phase = 'prep'; TMR.remaining = 5;
-  speak('Bereit machen – ' + name + ' – ' + sets + ' Sätze à ' + secs + ' Sekunden');
-  renderTimerEl();
+  TMR.elId = 'ring'+idx;
+  TMR.phase = 'prep';
+  TMR.remaining = 5;
+  speak('Bereit machen – ' + st.name + ' – Satz ' + (st.done+1) + ' von ' + st.total);
+  renderSetCard(idx);
+  renderRing('ring'+idx, 5, 5, 'prep');
   TMR.interval = setInterval(function() {
     TMR.remaining--;
     if (TMR.phase === 'prep') {
-      if (TMR.remaining <= 0) { TMR.phase = 'go'; TMR.remaining = TMR.total; speak('Los!'); }
-      else if (TMR.remaining <= 3) speak(String(TMR.remaining));
-    } else if (TMR.phase === 'go') {
+      if (TMR.remaining <= 3 && TMR.remaining > 0) speak(String(TMR.remaining));
       if (TMR.remaining <= 0) {
-        if (TMR.currentSet < TMR.sets) {
-          TMR.currentSet++; TMR.remaining = TMR.total;
-          speak('Satz ' + TMR.currentSet + ' von ' + TMR.sets + ' – los!');
-        } else { TMR.phase = 'done'; clearInterval(TMR.interval); speak('Fertig! Sehr gut!'); }
-      } else {
-        var r = TMR.remaining;
-        if (r === Math.floor(TMR.total / 2) && TMR.total >= 20) speak('Halbzeit!');
-        else if (r === 10 && TMR.total > 15) speak('Noch 10 Sekunden!');
-        else if (r <= 3 && r > 0) speak(String(r));
+        TMR.phase = 'work';
+        TMR.remaining = st.secs;
+        speak('Los!');
+        renderSetCard(idx);
+      }
+    } else if (TMR.phase === 'work') {
+      var r = TMR.remaining;
+      if (r === Math.floor(st.secs/2) && st.secs >= 20) speak('Halbzeit!');
+      else if (r === 10 && st.secs > 15) speak('Noch 10 Sekunden!');
+      else if (r <= 3 && r > 0) speak(String(r));
+      if (r <= 0) {
+        clearInterval(TMR.interval); TMR.interval = null;
+        confirmSet(idx);
+        return;
       }
     }
-    renderTimerEl();
+    renderRing('ring'+idx, TMR.remaining, TMR.phase==='prep'?5:st.secs, TMR.phase);
   }, 1000);
 }
 
-function resetTimerEl(elId, secs, sets) {
+function skipToConfirm(idx) {
   stopTimer();
-  TMR.elId = elId; TMR.total = secs; TMR.remaining = secs; TMR.sets = sets;
-  TMR.currentSet = 1; TMR.phase = 'idle';
-  renderTimerEl();
+  TMR.phase = 'idle';
+  confirmSet(idx);
+}
+
+function confirmSet(idx) {
+  var st = SET_STATE[idx];
+  if (!st) return;
+  st.done++;
+  speak(st.done < st.total ? 'Satz '+st.done+' geschafft! Pause.' : 'Alle Sätze fertig! Sehr gut!');
+  if (st.done >= st.total) {
+    stopTimer();
+    TMR.phase = 'idle';
+    renderSetCard(idx);
+    return;
+  }
+  // Start rest timer
+  stopTimer();
+  TMR.elId = 'ring'+idx;
+  TMR.phase = 'rest';
+  TMR.remaining = st.restSecs;
+  renderSetCard(idx);
+  renderRing('ring'+idx, st.restSecs, st.restSecs, 'rest');
+  TMR.interval = setInterval(function() {
+    TMR.remaining--;
+    var r = TMR.remaining;
+    if (r === 30) speak('Noch 30 Sekunden Pause.');
+    else if (r === 10) speak('Noch 10 Sekunden!');
+    else if (r <= 3 && r > 0) speak(String(r));
+    if (r <= 0) {
+      clearInterval(TMR.interval); TMR.interval = null;
+      TMR.phase = 'idle';
+      speak('Weiter – Satz '+(st.done+1)+' von '+st.total);
+      renderSetCard(idx);
+      return;
+    }
+    renderRing('ring'+idx, r, st.restSecs, 'rest');
+  }, 1000);
+}
+
+function skipRest(idx) {
+  stopTimer();
+  TMR.phase = 'idle';
+  renderSetCard(idx);
+  speak('Weiter!');
 }
 
 function buildTimerHTML(i, ex) {
   var td = parseTime(ex.s);
-  if (!td) return '';
-  var elId = 'tmr'+i;
-  var sn = ex.n.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-  return '<div class="timer-wrap">' +
-    '<div id="'+elId+'">' +
-      '<div class="timer-phase">⏱ Timer bereit</div>' +
-      '<svg class="timer-ring" width="88" height="88" viewBox="0 0 88 88">' +
-        '<circle cx="44" cy="44" r="38" fill="none" stroke="#222" stroke-width="6"/>' +
-        '<text x="44" y="50" text-anchor="middle" fill="#555" font-size="22" font-weight="700">'+td.secs+'</text>' +
-      '</svg>' +
-    '</div>' +
-    '<div class="timer-btns">' +
-      '<button class="tbtn-start" onclick="startTimer(\''+elId+'\','+td.secs+','+td.sets+',\''+sn+'\')">▶ Start</button>' +
-      '<button class="tbtn-reset" onclick="resetTimerEl(\''+elId+'\','+td.secs+','+td.sets+')">↺ Reset</button>' +
-    '</div>' +
-  '</div>';
+  var ps = parseSets(ex.s);
+  if (!td && !ps) return '';
+
+  var restSecs = td ? 45 : 75; // shorter rest for timed, longer for reps
+  SET_STATE[i] = {
+    done: 0,
+    total: td ? td.sets : ps.sets,
+    secs: td ? td.secs : 0,
+    reps: ps ? ps.reps : 0,
+    restSecs: restSecs,
+    name: ex.n
+  };
+
+  return '<div class="setcard-wrap"><div id="setcard'+i+'"></div></div>';
 }
 
 function buildSetsInfo(ex) {
   var td = parseTime(ex.s);
   var m = ex.s.match(/^(\d+)×(\d+)$/);
   if (td) {
-    return '<div class="sets-info">⏱ <b>'+td.sets+' Sätze</b> à <b>'+td.secs+' Sekunden</b> halten' +
-      (td.sets > 1 ? ' &nbsp;·&nbsp; ~30–60 Sek. Pause zwischen Sätzen' : '') + '</div>';
+    return '<div class="sets-info">⏱ <b>'+td.sets+' Sätze</b> à <b>'+td.secs+' Sekunden</b> halten &nbsp;·&nbsp; ~45 Sek. Pause</div>';
   } else if (m) {
-    return '<div class="sets-info">🔁 <b>'+m[1]+' Sätze</b> × <b>'+m[2]+' Wiederholungen</b>' +
-      ' &nbsp;·&nbsp; ~60–90 Sek. Pause zwischen den Sätzen</div>';
+    return '<div class="sets-info">🔁 <b>'+m[1]+' Sätze</b> × <b>'+m[2]+' Wiederholungen</b> &nbsp;·&nbsp; ~75 Sek. Pause</div>';
   }
   return '';
+}
+
+// Init set cards after DOM render
+function initSetCards() {
+  for (var idx in SET_STATE) {
+    renderSetCard(parseInt(idx));
+  }
 }
 
 // ── BOOT ──────────────────────────────────
