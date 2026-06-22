@@ -204,6 +204,46 @@ input[type=text]::placeholder{color:#444}
 .timer-ctrl button{padding:9px 18px;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer}
 .tbtn-stop{background:#242424;color:#888}
 .tbtn-pause{background:#1a1a1a;color:#f59e0b;border:1px solid #f59e0b}
+
+/* ── EQUIPMENT & EXERCISE MANAGEMENT ── */
+.ex-mgmt-screen{display:none;position:fixed;inset:0;background:#0f0f0f;z-index:200;overflow-y:auto;padding-bottom:80px}
+.ex-mgmt-screen.open{display:block}
+.exmgmt-bar{display:flex;align-items:center;gap:12px;padding:1rem;border-bottom:1px solid rgba(255,255,255,0.08);position:sticky;top:0;background:#0f0f0f;z-index:10}
+.exmgmt-bar h2{font-size:17px;font-weight:600;flex:1}
+.back-btn{background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:7px 13px;color:#aaa;font-size:13px;cursor:pointer}
+.eq-section{padding:1rem}
+.eq-title{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#555;margin-bottom:.6rem}
+.eq-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.5rem}
+.eq-card{background:#1a1a1a;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s}
+.eq-card.on{border-color:#22c55e;background:rgba(34,197,94,.1)}
+.eq-icon{font-size:22px;flex-shrink:0}
+.eq-info{flex:1}
+.eq-name{font-size:14px;font-weight:500}
+.eq-sub{font-size:11px;color:#555;margin-top:1px}
+.eq-card.on .eq-sub{color:#1a9e55}
+.eq-toggle{width:20px;height:20px;border-radius:50%;border:2px solid #333;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px}
+.eq-card.on .eq-toggle{background:#22c55e;border-color:#22c55e;color:#000}
+.ex-filter-tabs{display:flex;gap:5px;padding:0 1rem;overflow-x:auto;margin-bottom:.8rem}
+.ex-filter-tabs::-webkit-scrollbar{display:none}
+.eft{padding:5px 13px;border:1px solid rgba(255,255,255,0.1);border-radius:20px;font-size:12px;cursor:pointer;color:#777;white-space:nowrap}
+.eft.on{background:#22c55e;border-color:#22c55e;color:#000;font-weight:700}
+.ex-mgmt-list{padding:0 1rem;display:flex;flex-direction:column;gap:7px}
+.exm-row{background:#1a1a1a;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:10px;transition:all .15s}
+.exm-row.disabled{opacity:.45;background:#111}
+.exm-row.eq-missing{border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.05)}
+.exm-icon{font-size:18px;flex-shrink:0;width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center}
+.push-ic{background:rgba(59,130,246,.2)} .pull-ic{background:rgba(139,92,246,.2)} .legs-ic{background:rgba(245,158,11,.2)} .core-ic{background:rgba(34,197,94,.15)}
+.exm-info{flex:1;min-width:0}
+.exm-name{font-size:13px;font-weight:500}
+.exm-tags{display:flex;gap:4px;margin-top:3px;flex-wrap:wrap}
+.exm-tag{font-size:10px;padding:1px 7px;border-radius:10px;background:#242424;color:#666}
+.exm-tag.eq{background:rgba(245,158,11,.15);color:#f59e0b}
+.exm-tag.missing{background:rgba(239,68,68,.15);color:#ef4444}
+.exm-toggle{width:44px;height:26px;border-radius:13px;background:#333;position:relative;cursor:pointer;flex-shrink:0;transition:background .2s}
+.exm-toggle.on{background:#22c55e}
+.exm-toggle::after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .2s}
+.exm-toggle.on::after{transform:translateX(18px)}
+.exm-count{font-size:12px;color:#555;padding:.5rem 1rem;margin-bottom:.5rem}
 </style>
 </head>
 <body>
@@ -304,6 +344,10 @@ input[type=text]::placeholder{color:#444}
     <div class="mtime" id="mtimeg"></div>
     <div class="mr"><div><div class="mrl">Trainingstage / Woche</div><div class="mrs">Jederzeit änderbar</div></div><div class="mrv" id="md"></div></div>
     <div class="mdr" id="mdr"></div>
+    <div class="mr" style="cursor:pointer" onclick="closeMo();openExMgmt()">
+      <div><div class="mrl">Übungen &amp; Hilfsmittel</div><div class="mrs">Übungen deaktivieren, Equipment wählen</div></div>
+      <div class="mrv">→</div>
+    </div>
     <button class="mdang" onclick="resetAll()">⚠ Alle Daten löschen</button>
     <button class="msm" style="width:100%;text-align:center;margin-top:8px" onclick="closeMo()">Schließen</button>
   </div>
@@ -342,60 +386,60 @@ function thumb(n){return 'https://i.ytimg.com/vi/'+vid(n)+'/mqdefault.jpg';}
 // Sets will be adapted by level and time
 var POOL = {
   push:[
-    ['Liegestütze','Schulterbreit, volle Bewegung','3×10','push','1 Sek. oben halten erhöht die Spannung.'],
-    ['Enge Liegestütze','Hände nah, Trizepsfokus','3×8','push','Ellbogen eng am Körper führen.'],
-    ['Pike Liegestütze','V-Haltung, Hüfte hoch, Schultern belasten','3×8','push','Kopf fast den Boden berühren.'],
-    ['Dips (Stuhlkante)','Stuhl hinter dir, Hände auf Kante','3×10','push','Rücken nah an der Stuhlkante halten.'],
-    ['Liegestütz auf Knien','Rücken gerade, gute Basis','3×12','push','Knie als Stütze, Rücken gerade.'],
-    ['Archer Liegestütze','Zur Seite strecken, einseitige Last','3×6','push','Gestreckte Seite wirklich gerade halten.'],
-    ['Decline Liegestütze','Füße auf Stuhl, Oberkörper schräg','3×10','push','Je höher die Füße, desto mehr Oberbrust.'],
-    ['Pseudo Planche Liegestütze','Hände nah am Hüftgelenk, vorgelehnt','3×6','push','Schultern über Handgelenke – kein Hohlkreuz.'],
-    ['Hindu Liegestütze','Bogen von Pike nach Cobra','3×8','push','Fließende Bewegung, Hüfte führt.'],
-    ['Explosive Liegestütze','Hände verlassen kurz den Boden','3×5','push','Weich landen – Handgelenke schonen.']
+    ['Liegestütze','Schulterbreit, volle Bewegung','3×10','push','1 Sek. oben halten erhöht die Spannung.',[]],
+    ['Enge Liegestütze','Hände nah, Trizepsfokus','3×8','push','Ellbogen eng am Körper führen.',[]],
+    ['Pike Liegestütze','V-Haltung, Hüfte hoch, Schultern belasten','3×8','push','Kopf fast den Boden berühren.',[]],
+    ['Dips (Stuhlkante)','Stuhl hinter dir, Hände auf Kante','3×10','push','Rücken nah an der Stuhlkante halten.',['stuhl']],
+    ['Liegestütz auf Knien','Rücken gerade, gute Basis','3×12','push','Knie als Stütze, Rücken gerade.',[]],
+    ['Archer Liegestütze','Zur Seite strecken, einseitige Last','3×6','push','Gestreckte Seite wirklich gerade halten.',[]],
+    ['Decline Liegestütze','Füße auf Stuhl, Oberkörper schräg','3×10','push','Je höher die Füße, desto mehr Oberbrust.',['stuhl']],
+    ['Pseudo Planche Liegestütze','Hände nah am Hüftgelenk, vorgelehnt','3×6','push','Schultern über Handgelenke – kein Hohlkreuz.',[]],
+    ['Hindu Liegestütze','Bogen von Pike nach Cobra','3×8','push','Fließende Bewegung, Hüfte führt.',[]],
+    ['Explosive Liegestütze','Hände verlassen kurz den Boden','3×5','push','Weich landen – Handgelenke schonen.',[]]
   ],
   pull:[
-    ['Tischrudern','Unter Tisch hängen, Brust hochziehen','3×10','pull','Schulterblätter am Ende zusammendrücken.'],
-    ['Handtuch-Rudern','Handtuch um Türgriff, zurücklehnen','3×10','pull','Je weiter zurück, desto schwerer.'],
-    ['Superman Hold','Bauchlage, Arme und Beine heben','3×12','pull','Oben 2 Sek. halten für mehr Wirkung.'],
-    ['Rückenstrecken','Bauchlage, Oberkörper langsam heben','3×12','pull','Langsam senken – eccentrisch trainieren.'],
-    ['Einarm-Rudern (Tisch)','Eine Seite, andere Hand stützt leicht','3×8','pull','So wenig Stütze wie möglich.'],
-    ['Scapula Push-ups','In Plank Schulterblätter schieben/ziehen','3×12','pull','Arme bleiben gestreckt – nur Schulterblätter.'],
-    ['Rückenstrecken mit Rotation','Oben links-rechts drehen','3×10','pull','Rotation langsam und kontrolliert.'],
-    ['Face Pulls (Handtuch)','Handtuch an Türrahmen, zu Gesicht ziehen','3×12','pull','Ellbogen hoch halten beim Ziehen.'],
-    ['Reverse Snow Angels','Bauchlage, Arme im Bogen bewegen','3×12','pull','Arme knapp über dem Boden halten.'],
-    ['Good Mornings','Stehend, Oberkörper nach vorne beugen','3×15','pull','Rücken gerade – nicht runden!']
+    ['Tischrudern','Unter Tisch hängen, Brust hochziehen','3×10','pull','Schulterblätter am Ende zusammendrücken.',['tisch']],
+    ['Handtuch-Rudern','Handtuch um Türgriff, zurücklehnen','3×10','pull','Je weiter zurück, desto schwerer.',['handtuch']],
+    ['Superman Hold','Bauchlage, Arme und Beine heben','3×12','pull','Oben 2 Sek. halten für mehr Wirkung.',[]],
+    ['Rückenstrecken','Bauchlage, Oberkörper langsam heben','3×12','pull','Langsam senken – eccentrisch trainieren.',[]],
+    ['Einarm-Rudern (Tisch)','Eine Seite, andere Hand stützt leicht','3×8','pull','So wenig Stütze wie möglich.',['tisch']],
+    ['Scapula Push-ups','In Plank Schulterblätter schieben/ziehen','3×12','pull','Arme bleiben gestreckt – nur Schulterblätter.',[]],
+    ['Rückenstrecken mit Rotation','Oben links-rechts drehen','3×10','pull','Rotation langsam und kontrolliert.',[]],
+    ['Face Pulls (Handtuch)','Handtuch an Türrahmen, zu Gesicht ziehen','3×12','pull','Ellbogen hoch halten beim Ziehen.',['handtuch']],
+    ['Reverse Snow Angels','Bauchlage, Arme im Bogen bewegen','3×12','pull','Arme knapp über dem Boden halten.',[]],
+    ['Good Mornings','Stehend, Oberkörper nach vorne beugen','3×15','pull','Rücken gerade – nicht runden!',[]]
   ],
   legs:[
-    ['Kniebeugen','Schulterbreit, tief, Knie über Zehen','4×12','legs','Ferse bleibt immer am Boden.'],
-    ['Ausfallschritte','Wechselbeinig, Knie knapp über Boden','3×10','legs','Oberkörper bleibt aufrecht.'],
-    ['Glute Bridge','Rücken am Boden, Hüfte maximal heben','3×15','legs','1 Sek. oben halten.'],
-    ['Wadenheben','Zehenspitzen auf Stuhlkante, heben/senken','3×20','legs','Ganz oben kurz halten.'],
-    ['Bulgarian Split Squat','Hinteres Bein auf Stuhl, tief sinken','3×8','legs','Knie über den Zehen halten.'],
-    ['Sumo Squat','Weite Stellung, Zehen auswärts','3×15','legs','Knie in Zehenrichtung drücken.'],
-    ['Jump Squats','Explosiv hoch, weich landen','3×10','legs','Knie beim Landen weich halten.'],
-    ['Einbein Glute Bridge','Ein Bein gestreckt, Hüfte heben','3×12','legs','Hüfte gerade halten – nicht kippen.'],
-    ['Reverse Lunges','Schritt nach hinten, Knie knapp über Boden','3×10','legs','Stabiler als vorwärts – gut für Knie.'],
-    ['Lateral Lunges','Schritt zur Seite, tief sinken','3×8','legs','Knie zeigt in Zehenrichtung.'],
-    ['Squat Pulse','Tief in Squat, kleine schnelle Bewegungen','3×30s','legs','Brennt – nicht aufgeben!'],
-    ['Step-ups (Stuhl)','Stuhl benutzen, wechselbeinig','3×10','legs','Fußballen auf der Kante – Waden aktivieren.'],
-    ['Donkey Kicks','Vierfüßler, Bein nach hinten-oben kicken','3×15','legs','Rücken gerade – nur Hüfte bewegen.']
+    ['Kniebeugen','Schulterbreit, tief, Knie über Zehen','4×12','legs','Ferse bleibt immer am Boden.',[]],
+    ['Ausfallschritte','Wechselbeinig, Knie knapp über Boden','3×10','legs','Oberkörper bleibt aufrecht.',[]],
+    ['Glute Bridge','Rücken am Boden, Hüfte maximal heben','3×15','legs','1 Sek. oben halten.',[]],
+    ['Wadenheben','Zehenspitzen auf Stuhlkante, heben/senken','3×20','legs','Ganz oben kurz halten.',['stuhl']],
+    ['Bulgarian Split Squat','Hinteres Bein auf Stuhl, tief sinken','3×8','legs','Knie über den Zehen halten.',['stuhl']],
+    ['Sumo Squat','Weite Stellung, Zehen auswärts','3×15','legs','Knie in Zehenrichtung drücken.',[]],
+    ['Jump Squats','Explosiv hoch, weich landen','3×10','legs','Knie beim Landen weich halten.',[]],
+    ['Einbein Glute Bridge','Ein Bein gestreckt, Hüfte heben','3×12','legs','Hüfte gerade halten – nicht kippen.',[]],
+    ['Reverse Lunges','Schritt nach hinten, Knie knapp über Boden','3×10','legs','Stabiler als vorwärts – gut für Knie.',[]],
+    ['Lateral Lunges','Schritt zur Seite, tief sinken','3×8','legs','Knie zeigt in Zehenrichtung.',[]],
+    ['Squat Pulse','Tief in Squat, kleine schnelle Bewegungen','3×30s','legs','Brennt – nicht aufgeben!',[]],
+    ['Step-ups (Stuhl)','Stuhl benutzen, wechselbeinig','3×10','legs','Fußballen auf der Kante – Waden aktivieren.',['stuhl']],
+    ['Donkey Kicks','Vierfüßler, Bein nach hinten-oben kicken','3×15','legs','Rücken gerade – nur Hüfte bewegen.',[]]
   ],
   core:[
-    ['Plank','Körper gerade wie ein Brett','3×30s','core','Gesäß anspannen – nicht durchhängen.'],
-    ['Hollow Body Hold','Unterer Rücken flach am Boden','3×20s','core','Beine nur so tief, dass Rücken flach bleibt.'],
-    ['Crunches','Kurze Bewegung, kein Schwung','3×15','core','Ausatmen beim Heben.'],
-    ['Mountain Climbers','Liegestütz-Position, Knie abwechseln','3×20','core','Hüfte unten halten – nicht wippen.'],
-    ['Seitenplank','Ellenbogen auf Boden, Hüfte gerade','3×20s','core','Hüfte nicht absinken lassen.'],
-    ['V-Ups','Arme und Beine zur Mitte führen','3×10','core','Hüfte als Drehpunkt, nicht rucken.'],
-    ['Dead Bug','Rücken flach, Arm und Bein senken','3×8','core','Unterer Rücken bleibt immer am Boden.'],
-    ['Bicycle Crunches','Ellenbogen zum gegenüberliegenden Knie','3×15','core','Langsam – kein Tempo-Schummeln.'],
-    ['Leg Raises','Beine gestreckt heben und langsam senken','3×10','core','Nicht aufsetzen – Spannung halten.'],
-    ['Russian Twists','Oberkörper drehen, mit Wasserflasche','3×15','core','Füße können leicht angehoben werden.'],
-    ['Bear Crawl','Vierfüßler vorwärts/rückwärts kriechen','3×30s','core','Knie knapp über dem Boden halten.'],
-    ['Plank Shoulder Taps','In Plank Schultern abwechselnd antippen','3×10','core','Hüfte stabil – nicht schwingen.'],
-    ['Flutter Kicks','Rücken am Boden, Beine abwechselnd kicken','3×20s','core','Beine gestreckt halten – nicht beugen.'],
-    ['Ab Wheel (Flasche)','Wasserflasche als Rolle, kniend','3×8','core','Nur so weit wie Rücken gerade bleibt.'],
-    ['Reverse Crunches','Beine hochziehen, Hüfte leicht hebt','3×12','core','Bewegung aus dem Bauch – nicht Schwung.']
+    ['Plank','Körper gerade wie ein Brett','3×30s','core','Gesäß anspannen – nicht durchhängen.',[]],
+    ['Hollow Body Hold','Unterer Rücken flach am Boden','3×20s','core','Beine nur so tief, dass Rücken flach bleibt.',[]],
+    ['Crunches','Kurze Bewegung, kein Schwung','3×15','core','Ausatmen beim Heben.',[]],
+    ['Mountain Climbers','Liegestütz-Position, Knie abwechseln','3×20','core','Hüfte unten halten – nicht wippen.',[]],
+    ['Seitenplank','Ellenbogen auf Boden, Hüfte gerade','3×20s','core','Hüfte nicht absinken lassen.',[]],
+    ['V-Ups','Arme und Beine zur Mitte führen','3×10','core','Hüfte als Drehpunkt, nicht rucken.',[]],
+    ['Dead Bug','Rücken flach, Arm und Bein senken','3×8','core','Unterer Rücken bleibt immer am Boden.',[]],
+    ['Bicycle Crunches','Ellenbogen zum gegenüberliegenden Knie','3×15','core','Langsam – kein Tempo-Schummeln.',[]],
+    ['Leg Raises','Beine gestreckt heben und langsam senken','3×10','core','Nicht aufsetzen – Spannung halten.',[]],
+    ['Russian Twists','Oberkörper drehen, mit Wasserflasche','3×15','core','Füße können leicht angehoben werden.',['flasche']],
+    ['Bear Crawl','Vierfüßler vorwärts/rückwärts kriechen','3×30s','core','Knie knapp über dem Boden halten.',[]],
+    ['Plank Shoulder Taps','In Plank Schultern abwechselnd antippen','3×10','core','Hüfte stabil – nicht schwingen.',[]],
+    ['Flutter Kicks','Rücken am Boden, Beine abwechselnd kicken','3×20s','core','Beine gestreckt halten – nicht beugen.',[]],
+    ['Ab Wheel (Flasche)','Wasserflasche als Rolle, kniend','3×8','core','Nur so weit wie Rücken gerade bleibt.',['flasche']],
+    ['Reverse Crunches','Beine hochziehen, Hüfte leicht hebt','3×12','core','Bewegung aus dem Bauch – nicht Schwung.',[]]
   ]
 };
 
@@ -660,14 +704,12 @@ function tmBlockHTML(phase,totalSec){
 }
 
 // ── SET TRACKER ────────────────────────────
-// setStates[exIdx] = { doneSets: 0, totalSets: N, secPerSet: S|null, restSec: R, active: false }
 var SET_STATE = {};
+var CURRENT_EXS = []; // current day's exercise list, indexed same as SET_STATE
 var PREP_SEC = 5;
-var REST_SEC = 60; // default rest between sets
+var REST_SEC = 60;
 
 function parseExSets(sStr){
-  // "3×10" → {sets:3, reps:10, timeSec:null}
-  // "3×30s" → {sets:3, reps:null, timeSec:30}
   var m=sStr.match(/(\d+)×(\d+)(s?)/);
   if(!m) return {sets:3,reps:10,timeSec:null};
   var sets=+m[1], val=+m[2], isSec=m[3]==='s';
@@ -676,23 +718,21 @@ function parseExSets(sStr){
 
 function initSetState(idx, sStr){
   var p=parseExSets(sStr);
-  SET_STATE[idx]={
-    done:0, total:p.sets, timeSec:p.timeSec, reps:p.reps,
-    phase:'idle' // idle | prep | go | rest | finished
-  };
+  SET_STATE[idx]={done:0, total:p.sets, timeSec:p.timeSec, reps:p.reps, phase:'idle'};
 }
 
-function setHTML(idx, exName, sStr){
+function setHTML(idx){
+  var ex=CURRENT_EXS[idx];
+  if(!ex) return '';
+  var sStr=ex.s, exName=ex.n;
   var p=parseExSets(sStr);
   var isTime=!!p.timeSec;
   var st=SET_STATE[idx]||{done:0,total:p.sets,phase:'idle'};
   var h='<div class="sets-wrap" id="sw'+idx+'">';
-  // Explanation line
   h+='<div style="padding:.5rem .9rem .3rem;font-size:12px;color:#666">';
   h+=p.sets+' Sätze'+(isTime?' × '+p.timeSec+' Sek.':' × '+p.reps+' Wdh.')+' · Pause: '+REST_SEC+' Sek.</div>';
 
   if(st.phase==='prep'||st.phase==='go'||st.phase==='rest'){
-    // show timer
     var ph=st.phase==='rest'?'rest':st.phase;
     var sec=st.phase==='prep'?PREP_SEC:st.phase==='go'?p.timeSec:REST_SEC;
     h+=tmBlockHTML(ph, sec);
@@ -700,7 +740,6 @@ function setHTML(idx, exName, sStr){
     return h;
   }
 
-  // show set rows
   for(var i=0;i<p.sets;i++){
     var isDone=i<st.done;
     var isNext=i===st.done&&st.phase!=='finished';
@@ -708,15 +747,15 @@ function setHTML(idx, exName, sStr){
     h+='<span class="set-num">Satz '+(i+1)+'</span>';
     h+='<div class="set-status'+(isDone?' done':isNext?' active':'')+'">'+(isDone?'✓':isNext?'●':'')+'</div>';
     if(isTime){
-      h+='<span class="set-desc">'+(isDone?'Erledigt':isNext?p.timeSec+' Sek.':p.timeSec+' Sek.')+'</span>';
+      h+='<span class="set-desc">'+(isDone?'Erledigt':p.timeSec+' Sek.')+'</span>';
     } else {
       h+='<span class="set-desc">'+(isDone?'Erledigt':p.reps+' Wiederholungen')+'</span>';
     }
     if(isNext&&st.phase==='idle'){
       if(isTime){
-        h+='<button class="set-btn" onclick="startSetTimer('+idx+',''+exName.replace(/'/g,"\'")+'',''+sStr+'')">▶ Start</button>';
+        h+='<button class="set-btn" onclick="startSetTimer('+idx+')">▶ Start</button>';
       } else {
-        h+='<button class="set-btn" onclick="confirmSet('+idx+',''+exName.replace(/'/g,"\'")+'',''+sStr+'')">✓ Fertig</button>';
+        h+='<button class="set-btn" onclick="confirmSet('+idx+')">✓ Fertig</button>';
       }
     }
     h+='</div>';
@@ -728,56 +767,56 @@ function setHTML(idx, exName, sStr){
   return h;
 }
 
-function refreshSetBlock(idx, exName, sStr){
+function refreshSetBlock(idx){
   var el=document.getElementById('sw'+idx);
-  if(el) el.outerHTML=setHTML(idx,exName,sStr);
+  if(el) el.outerHTML=setHTML(idx);
 }
 
-function startSetTimer(idx, exName, sStr){
-  var p=parseExSets(sStr);
+function startSetTimer(idx){
+  var ex=CURRENT_EXS[idx];
+  if(!ex)return;
+  var p=parseExSets(ex.s);
   var st=SET_STATE[idx];
   if(!st)return;
   st.phase='prep';
-  refreshSetBlock(idx,exName,sStr);
+  refreshSetBlock(idx);
   tmStart(PREP_SEC,'prep',function(){
     st.phase='go';
-    refreshSetBlock(idx,exName,sStr);
+    refreshSetBlock(idx);
     tmStart(p.timeSec,'go',function(){
-      confirmSet(idx,exName,sStr);
+      confirmSet(idx);
     });
   });
 }
 
-function confirmSet(idx, exName, sStr){
-  var p=parseExSets(sStr);
+function confirmSet(idx){
+  var ex=CURRENT_EXS[idx];
+  if(!ex)return;
+  var p=parseExSets(ex.s);
   var st=SET_STATE[idx];
   if(!st)return;
   tmClear();
   st.done++;
   if(st.done>=st.total){
     st.phase='finished';
-    refreshSetBlock(idx,exName,sStr);
-    // auto-complete exercise
-    var k=S.w+'-'+S.di+'-'+exName;
+    refreshSetBlock(idx);
+    var k=S.w+'-'+S.di+'-'+ex.n;
     S.exd[k]=true; sv();
-    // refresh done count in header
     var days=bd(),day=days[S.di];
     var count=TIME_COUNT[S.u.tm]||6;
     var exs=pickExercises(S.w,S.di,day.focus,count,S.u.lv);
     var dc=exs.filter(function(e){return ied(e.n);}).length;
     var eh=document.querySelector('.eh p');
     if(eh) eh.textContent=dc+' / '+exs.length+' erledigt';
-    // check if all done
     var cbtn=document.getElementById('main-cbtn');
     if(cbtn&&dc===exs.length){cbtn.disabled=false;}
     return;
   }
-  // start rest timer
   st.phase='rest';
-  refreshSetBlock(idx,exName,sStr);
+  refreshSetBlock(idx);
   tmStart(REST_SEC,'rest',function(){
     st.phase='idle';
-    refreshSetBlock(idx,exName,sStr);
+    refreshSetBlock(idx);
     tmSay('Nächster Satz. Los!');
   });
 }
@@ -793,6 +832,7 @@ function rw(){
   SET_STATE={};
   var count=TIME_COUNT[S.u.tm]||6;
   var exs=pickExercises(S.w,S.di,day.focus,count,S.u.lv);
+  CURRENT_EXS=exs;
   // init set states
   for(var i=0;i<exs.length;i++) initSetState(i,exs[i].s);
   var fin=isd(S.w,S.di);
@@ -1131,6 +1171,202 @@ function initSetCards() {
   }
 }
 
+
+// ── EQUIPMENT & EXERCISE MANAGEMENT ──────
+var EQUIPMENT = [
+  {id:'stuhl',  label:'Stuhl',                icon:'🪑', sub:'Dips, Wadenheben, Decline…'},
+  {id:'tisch',  label:'Tisch',                icon:'🪵', sub:'Tischrudern, Einarm-Rudern…'},
+  {id:'wand',   label:'Wand',                 icon:'🧱', sub:'Handstand-Stütze, Wand-Sit…'},
+  {id:'handtuch',label:'Handtücher / Seile',  icon:'🎽', sub:'Handtuch-Rudern, Face Pulls…'},
+  {id:'flasche',label:'Wasserflasche',        icon:'🍶', sub:'Russian Twists, Ab Wheel…'},
+  {id:'sofa',   label:'Sofa / Couch',         icon:'🛋️', sub:'Nordic Curls, erhöhte Squats…'}
+];
+
+var _exFilter = 'all';
+
+// Default: all equipment ON, no exercises disabled
+function defaultEqState(){
+  var eq={};
+  EQUIPMENT.forEach(function(e){eq[e.id]=true;});
+  return eq;
+}
+function getUserEq(){
+  if(!S.u) return defaultEqState();
+  if(!S.u.eq) S.u.eq = defaultEqState();
+  return S.u.eq;
+}
+function getUserDisabled(){
+  if(!S.u) return {};
+  if(!S.u.disabled) S.u.disabled = {};
+  return S.u.disabled;
+}
+
+function isExAvailable(ex){
+  // ex[5] = required equipment array
+  var req = ex[5]||[];
+  var eq = getUserEq();
+  for(var i=0;i<req.length;i++){
+    if(!eq[req[i]]) return false;
+  }
+  return true;
+}
+function isExEnabled(ex){
+  var dis = getUserDisabled();
+  return !dis[ex[0]];
+}
+
+function openExMgmt(){
+  document.getElementById('exmgmt').classList.add('open');
+  renderExMgmt();
+}
+function closeExMgmt(){
+  document.getElementById('exmgmt').classList.remove('open');
+  rw(); // refresh workout with new settings
+}
+
+function renderExMgmt(){
+  var eq = getUserEq();
+  var dis = getUserDisabled();
+
+  // Equipment grid – use data attributes, no inline onclick strings
+  var eqHtml = '';
+  EQUIPMENT.forEach(function(e){
+    var on = !!eq[e.id];
+    eqHtml += '<div class="eq-card'+(on?' on':'')+'" data-eqid="'+e.id+'">';
+    eqHtml += '<div class="eq-icon">'+e.icon+'</div>';
+    eqHtml += '<div class="eq-info"><div class="eq-name">'+e.label+'</div>';
+    eqHtml += '<div class="eq-sub">'+(on?'Verfügbar':'Nicht verfügbar')+'</div></div>';
+    eqHtml += '<div class="eq-toggle">'+(on?'✓':'')+'</div></div>';
+  });
+  document.getElementById('eq-grid').innerHTML = eqHtml;
+  document.querySelectorAll('#eq-grid .eq-card').forEach(function(el){
+    el.onclick = function(){ toggleEq(this.getAttribute('data-eqid')); };
+  });
+
+  // Count available exercises
+  var allEx = [].concat(POOL.push, POOL.pull, POOL.legs, POOL.core);
+  var available = allEx.filter(function(e){ return isExAvailable(e) && isExEnabled(e); });
+  var total = allEx.length;
+  var unavailEq = allEx.filter(function(e){ return !isExAvailable(e); }).length;
+  var disabledCt = allEx.filter(function(e){ return !isExEnabled(e); }).length;
+  document.getElementById('exm-count').textContent =
+    available.length + ' von ' + total + ' Übungen aktiv' +
+    (unavailEq ? ' · ' + unavailEq + ' wegen fehlender Hilfsmittel inaktiv' : '') +
+    (disabledCt ? ' · ' + disabledCt + ' manuell deaktiviert' : '');
+
+  // Exercise list – use data attributes for toggles
+  var TYPE_IC = {push:'💪 push-ic', pull:'🙌 pull-ic', legs:'🦵 legs-ic', core:'⚡ core-ic'};
+  var pool;
+  if(_exFilter==='all') pool = allEx;
+  else pool = POOL[_exFilter]||[];
+
+  var listHtml = '';
+  pool.forEach(function(ex){
+    var avail = isExAvailable(ex);
+    var enabled = isExEnabled(ex);
+    var req = ex[5]||[];
+    var cls = 'exm-row';
+    if(!enabled) cls += ' disabled';
+    else if(!avail) cls += ' eq-missing';
+    var ic = TYPE_IC[ex[3]]||'💪 push-ic';
+    var parts = ic.split(' ');
+    listHtml += '<div class="'+cls+'">';
+    listHtml += '<div class="exm-icon '+parts[1]+'">'+parts[0]+'</div>';
+    listHtml += '<div class="exm-info"><div class="exm-name">'+ex[0]+'</div>';
+    listHtml += '<div class="exm-tags"><span class="exm-tag">'+ex[2]+'</span>';
+    if(req.length){
+      req.forEach(function(r){
+        var eqObj = EQUIPMENT.filter(function(e){return e.id===r;})[0];
+        var eqAvail = !!getUserEq()[r];
+        listHtml += '<span class="exm-tag eq'+(eqAvail?'':' missing')+'">'+(eqObj?eqObj.icon+' '+eqObj.label:r)+(eqAvail?'':' ✗')+'</span>';
+      });
+    }
+    if(!avail) listHtml += '<span class="exm-tag missing">Hilfsmittel fehlt</span>';
+    listHtml += '</div></div>';
+    if(avail){
+      listHtml += '<div class="exm-toggle'+(enabled?' on':'')+'" data-exname="'+ex[0].replace(/"/g,'&quot;')+'"></div>';
+    } else {
+      listHtml += '<div style="font-size:11px;color:#ef4444;flex-shrink:0">Fehlt</div>';
+    }
+    listHtml += '</div>';
+  });
+  document.getElementById('exm-list').innerHTML = listHtml;
+  document.querySelectorAll('#exm-list .exm-toggle[data-exname]').forEach(function(el){
+    el.onclick = function(){ toggleExEnabled(this.getAttribute('data-exname')); };
+  });
+}
+
+function toggleEq(id){
+  var eq = getUserEq();
+  eq[id] = !eq[id];
+  S.u.eq = eq;
+  sv();
+  renderExMgmt();
+}
+
+function toggleExEnabled(name){
+  var dis = getUserDisabled();
+  if(dis[name]) delete dis[name];
+  else dis[name] = true;
+  S.u.disabled = dis;
+  sv();
+  renderExMgmt();
+}
+
+function setExFilter(f, el){
+  _exFilter = f;
+  document.querySelectorAll('.eft').forEach(function(t){t.classList.remove('on');});
+  if(el) el.classList.add('on');
+  renderExMgmt();
+}
+
+// ── OVERRIDE pickExercises to respect equipment & disabled ──
+var _origPickExercises = pickExercises;
+pickExercises = function(week, dayIdx, focus, count, level){
+  var result = _origPickExercises(week, dayIdx, focus, count, level);
+  // Filter out unavailable/disabled
+  var eq = getUserEq();
+  var dis = getUserDisabled();
+  var filtered = result.filter(function(ex){
+    // find in pool
+    var all = [].concat(POOL.push,POOL.pull,POOL.legs,POOL.core);
+    var poolEx = all.find(function(p){return p[0]===ex.n;});
+    if(!poolEx) return true;
+    var req = poolEx[5]||[];
+    for(var i=0;i<req.length;i++){ if(!eq[req[i]]) return false; }
+    if(dis[ex.n]) return false;
+    return true;
+  });
+  // If we filtered some out, fill gaps with available exercises
+  if(filtered.length < result.length){
+    var needed = result.length - filtered.length;
+    var usedNames = filtered.map(function(e){return e.n;});
+    var allTypes = [];
+    focus.forEach(function(t){ allTypes = allTypes.concat(POOL[t]||[]); });
+    var seed = week*100+dayIdx*10+99;
+    for(var i=allTypes.length-1;i>0;i--){
+      var j=Math.floor((Math.sin(seed+i)*10000-(Math.sin(seed+i)*10000|0))*(i+1));
+      var tmp=allTypes[i];allTypes[i]=allTypes[j];allTypes[j]=tmp;
+    }
+    for(var i=0;i<allTypes.length&&needed>0;i++){
+      var ex=allTypes[i];
+      if(usedNames.indexOf(ex[0])>=0) continue;
+      var req=ex[5]||[];
+      var ok=true;
+      for(var r=0;r<req.length;r++){if(!eq[req[r]]){ok=false;break;}}
+      if(!ok||dis[ex[0]]) continue;
+      var sets=ex[2];
+      if(level==='intermediate') sets=sets.replace(/([0-9]+)×([0-9]+)/g,function(m,a,b){return(+a+1)+'×'+(+b+2);});
+      else if(level==='advanced') sets=sets.replace(/([0-9]+)×([0-9]+)/g,function(m,a,b){return(+a+2)+'×'+(+b+4);});
+      filtered.push({n:ex[0],d:ex[1],s:sets,t:ex[3],tip:ex[4]});
+      usedNames.push(ex[0]);
+      needed--;
+    }
+  }
+  return filtered;
+};
+
+
 // ── BOOT ──────────────────────────────────
 ld();
 if(S.u&&S.u.n){
@@ -1139,5 +1375,28 @@ if(S.u&&S.u.n){
   ra();
 }
 </script>
+
+<!-- EQUIPMENT & EXERCISE MANAGEMENT SCREEN -->
+<div class="ex-mgmt-screen" id="exmgmt">
+  <div class="exmgmt-bar">
+    <button class="back-btn" onclick="closeExMgmt()">← Zurück</button>
+    <h2>Übungen & Hilfsmittel</h2>
+  </div>
+  <div class="eq-section">
+    <div class="eq-title">Verfügbare Hilfsmittel</div>
+    <div class="eq-grid" id="eq-grid"></div>
+    <div class="eq-title">Übungen verwalten</div>
+    <div class="exm-count" id="exm-count"></div>
+    <div class="ex-filter-tabs">
+      <div class="eft on" onclick="setExFilter('all',this)">Alle</div>
+      <div class="eft" onclick="setExFilter('push',this)">💪 Push</div>
+      <div class="eft" onclick="setExFilter('pull',this)">🙌 Pull</div>
+      <div class="eft" onclick="setExFilter('legs',this)">🦵 Beine</div>
+      <div class="eft" onclick="setExFilter('core',this)">⚡ Core</div>
+    </div>
+    <div class="ex-mgmt-list" id="exm-list"></div>
+    <div style="height:1rem"></div>
+  </div>
+</div>
 </body>
 </html>
